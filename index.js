@@ -3,8 +3,8 @@ const cors = require('cors')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
-const groups_router = require('./routes/groups.js')
 const pjson = require('./package.json')
+const groups_router = require('./routes/users.js')
 
 dotenv.config()
 
