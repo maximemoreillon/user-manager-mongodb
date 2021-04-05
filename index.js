@@ -4,7 +4,7 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const pjson = require('./package.json')
-const groups_router = require('./routes/users.js')
+const users_router = require('./routes/users.js')
 
 dotenv.config()
 
@@ -14,7 +14,8 @@ const mongoose_options = {
   useUnifiedTopology: true,
 }
 
-const mongoose_url = `${process.env.MONGODB_URL}/user_manager_mongoose`
+const mongodb_db = process.env.MONGODB_DB || 'user_manager_mongoose'
+const mongoose_url = `${process.env.MONGODB_URL}/${mongodb_db}`
 
 mongoose.set('useCreateIndex', true)
 mongoose.connect(mongoose_url, mongoose_options)
@@ -40,7 +41,7 @@ app.get('/', (req, res) => {
   })
 })
 
-app.use('/groups', groups_router)
+app.use('/users', users_router)
 
 app.listen(EXPRESS_PORT, () => {
   console.log(`[Express] App listening on ${EXPRESS_PORT}`)

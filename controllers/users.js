@@ -77,9 +77,21 @@ exports.update_password = (req, res) => {
 
 exports.get_users = (req, res) => {
   User.find({})
-  .then(groups => {
+  .then(users => {
     console.log(`[Mongoose] Users queried`)
-    res.send(groups)
+    res.send(users)
+  })
+  .catch(error => {
+    console.log(error)
+    res.status(500).send(error)
+  })
+}
+
+exports.get_user_count = (req, res) => {
+  User.countDocuments({})
+  .then(user_count => {
+    console.log(`[Mongoose] User count queried`)
+    res.send({user_count})
   })
   .catch(error => {
     console.log(error)
@@ -94,7 +106,7 @@ exports.create_admin_account = () => {
   hash_password(admin_password)
   .then(password_hashed => {
     const admin = new User({
-      name: 'admin',
+      username: 'admin',
       display_name: 'Administrator',
       email_address: 'admin@usermanager.com',
       password_hashed,
