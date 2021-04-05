@@ -14,8 +14,10 @@ const mongoose_options = {
   useUnifiedTopology: true,
 }
 
+const mongoose_url = `${process.env.MONGODB_URL}/user_manager_mongoose`
+
 mongoose.set('useCreateIndex', true)
-mongoose.connect(process.env.MONGODB_URL, mongoose_options)
+mongoose.connect(mongoose_url, mongoose_options)
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, '[Mongoose] connection error:'))
