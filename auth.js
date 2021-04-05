@@ -70,3 +70,7 @@ exports.login = (req, res) => {
     res.status(500).send(error)
   })
 }
+
+exports.get_user_from_jwt = (req, res) => {
+  res.send('not implemented')
+}

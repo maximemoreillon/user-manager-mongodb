@@ -14,11 +14,15 @@ const mongoose_options = {
   useUnifiedTopology: true,
 }
 
+mongoose.set('useCreateIndex', true)
 mongoose.connect(process.env.MONGODB_URL, mongoose_options)
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, '[Mongoose] connection error:'))
 db.once('open', () => { console.log('[Mongoose] Connected') })
+
+require('./controllers/users.js').create_admin_account()
+
 
 const EXPRESS_PORT = process.env.EXPRESS_PORT || 80
 
@@ -35,7 +39,6 @@ app.get('/', (req, res) => {
 })
 
 app.use('/groups', groups_router)
-
 
 app.listen(EXPRESS_PORT, () => {
   console.log(`[Express] App listening on ${EXPRESS_PORT}`)

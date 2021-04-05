@@ -16,6 +16,9 @@ const hash_password = (password_plain) => {
 exports.create_user = (req, res) => {
   const new_user = new User(req.body)
 
+  // Todo: Validation
+  // Todo: Check if user exists already
+
   new_user.save()
   .then((result) => {
     console.log(`[Mongoose] New user inserted`)
@@ -73,5 +76,36 @@ exports.update_password = (req, res) => {
 }
 
 exports.get_users = (req, res) => {
+  User.find({})
+  .then(groups => {
+    console.log(`[Mongoose] Users queried`)
+    res.send(groups)
+  })
+  .catch(error => {
+    console.log(error)
+    res.status(500).send(error)
+  })
+}
 
+exports.create_admin_account = () => {
+
+  const admin_password = process.env.ADMIN_PASSWORD || 'admin'
+
+  hash_password(admin_password)
+  .then(password_hashed => {
+    const admin = new User({
+      name: 'admin',
+      display_name: 'Administrator',
+      email_address: 'admin@usermanager.com',
+      password_hashed,
+    })
+    return admin.save()
+  })
+  .then((result) => {
+    console.log(`[Mongoose] Admin account created`)
+  })
+  .catch(error => {
+    if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
+    else console.log(error)
+  })
 }

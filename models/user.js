@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const userSchema = {
-  username: String,
-  email_address: String,
+  username: {type: String, unique: true},
+  email_address: {type: String, unique: true},
   password_hashed: String,
   display_name: String,
   avatar: String,
