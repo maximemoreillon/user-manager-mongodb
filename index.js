@@ -4,6 +4,8 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const pjson = require('./package.json')
+
+const auth_router = require('./routes/auth.js')
 const users_router = require('./routes/users.js')
 
 dotenv.config()
@@ -41,6 +43,7 @@ app.get('/', (req, res) => {
   })
 })
 
+app.use('/auth', auth_router)
 app.use('/users', users_router)
 
 app.listen(EXPRESS_PORT, () => {

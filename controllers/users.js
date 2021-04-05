@@ -14,12 +14,21 @@ const hash_password = (password_plain) => {
 }
 
 exports.create_user = (req, res) => {
-  const new_user = new User(req.body)
 
-  // Todo: Validation
-  // Todo: Check if user exists already
+  // Todo: validation with joy
+  const {
+    username,
+    password,
+  } = req.body
 
-  new_user.save()
+  hash_password(password)
+  .then(password_hashed => {
+    const new_user = new User({
+      username,
+      password_hashed
+    })
+    return new_user.save()
+  })
   .then((result) => {
     console.log(`[Mongoose] New user inserted`)
     res.send(result)
@@ -57,7 +66,8 @@ exports.update_user = (req, res) => {
 }
 
 exports.get_user = (req, res) => {
-  const {user_id} = req.params
+  let {user_id} = req.params
+  if(user_id === 'self') user_id = res.locals.user
   if(!user_id) return res.status(400).send(`User ID not defined`)
 
   User.findById(user_id)

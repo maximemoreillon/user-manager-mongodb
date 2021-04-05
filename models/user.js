@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const userSchema = {
   username: {type: String, unique: true},
-  email_address: {type: String, unique: true},
+  email_address: String,
   password_hashed: String,
   display_name: String,
   avatar: String,

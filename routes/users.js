@@ -1,7 +1,10 @@
 const express = require('express')
 const controller = require('../controllers/users.js')
+const auth = require('../auth.js')
 
 const router = express.Router()
+
+router.use(auth.middleware)
 
 router.route('/')
   .post(controller.create_user)
