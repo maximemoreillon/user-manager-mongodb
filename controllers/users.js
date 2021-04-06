@@ -15,6 +15,11 @@ const hash_password = (password_plain) => {
 
 exports.create_user = (req, res) => {
 
+  const {user} = res.locals
+  if(!user.administrator) {
+    return res.status(403).send(`Not allowed to create user unless administrator`)
+  }
+
   // Todo: validation with joy
   const {
     username,
@@ -41,8 +46,14 @@ exports.create_user = (req, res) => {
 }
 
 exports.delete_user = (req, res) => {
+
   const {user_id} = req.params
   if(!user_id) return res.status(400).send(`User ID not defined`)
+
+  const {user} = res.locals
+  if(user._id.toString() !== user_id && !user.administrator) {
+    return res.status(403).send(`Not allowed to delete another user`)
+  }
 
   User.deleteOne({_id: user_id})
   .then(() => {
@@ -61,6 +72,10 @@ exports.update_user = (req, res) => {
   let {user_id} = req.params
   if(user_id === 'self') user_id = user._id
   if(!user_id) return res.status(400).send(`User ID not defined`)
+
+  if(user._id.toString() !== user_id && !user.administrator) {
+    return res.status(403).send(`Not allowed to modify another user`)
+  }
 
   let modifiable_properties = [
     'display_name',
@@ -90,9 +105,6 @@ exports.update_user = (req, res) => {
     console.log(error)
     res.status(500).send(error)
   })
-
-
-
 }
 
 exports.get_user = (req, res) => {
