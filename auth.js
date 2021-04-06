@@ -30,7 +30,7 @@ const generate_token = (user) => {
 const decode_token = (token) => {
   return new Promise( (resolve, reject) => {
     const JWT_SECRET = process.env.JWT_SECRET
-    if(!JWT_SECRET) return reject({code: 500, message: `Token secret not set`})
+    if(!JWT_SECRET) return reject({code: 500, message: `JWT_SECRET not set`})
     jwt.verify(token, JWT_SECRET, (error, decoded_token) => {
       if(error) return reject({code: 403, message: `Invalid JWT`})
       resolve(decoded_token)

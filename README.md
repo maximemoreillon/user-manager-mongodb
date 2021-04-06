@@ -17,4 +17,5 @@ A user management system build around Mongoose
 | Variable  | Description |
 | --- | --- |
 | MONGODB_URL | The URL of the MongoDB database |
+| JWT_SECRET | Secret used to sign Tokens |
 | ADMIN_PASSWORD | The default password for the administrator account, defaults to 'admin' |
