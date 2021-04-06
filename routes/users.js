@@ -17,6 +17,7 @@ router.route('/:user_id')
   .get(controller.get_user)
   .delete(controller.delete_user)
   .put(controller.update_user)
+  .patch(controller.update_user)
 
 router.route('/:user_id/password')
   .put(controller.update_password)

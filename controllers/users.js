@@ -25,7 +25,8 @@ exports.create_user = (req, res) => {
   .then(password_hashed => {
     const new_user = new User({
       username,
-      password_hashed
+      password_hashed,
+      creation_date: new Date(),
     })
     return new_user.save()
   })
@@ -56,12 +57,43 @@ exports.delete_user = (req, res) => {
 
 exports.update_user = (req, res) => {
 
-  const modifiable_properties = [
+  const {user} = res.locals
+  let {user_id} = req.params
+  if(user_id === 'self') user_id = user._id
+  if(!user_id) return res.status(400).send(`User ID not defined`)
+
+  let modifiable_properties = [
     'display_name',
     'avatar',
   ]
 
-  res.send('Not implemented')
+  console.log(user)
+
+  if(user.administrator){
+    modifiable_properties = modifiable_properties.concat([
+      'administrator',
+      'locked',
+    ])
+  }
+
+  for (let [key, value] of Object.entries(req.body)) {
+    if(!modifiable_properties.includes(key)) {
+      console.log(`Unauthorized attempt to modify property ${key}`)
+      return res.status(403).send(`Unauthorized to modify ${key}`)
+    }
+  }
+
+  User.updateOne({_id: user_id}, req.body)
+  .then((result) => {
+    console.log(`[Mongoose] USer ${user_id} updated`)
+    res.send(result)
+  })
+  .catch(error => {
+    console.log(error)
+    res.status(500).send(error)
+  })
+
+
 
 }
 
@@ -82,7 +114,7 @@ exports.get_user = (req, res) => {
 }
 
 exports.update_password = (req, res) => {
-
+  res.status(501).send('Not implemented')
 }
 
 exports.get_users = (req, res) => {
@@ -119,7 +151,9 @@ exports.create_admin_account = () => {
     const admin = new User({
       username: admin_username,
       display_name: admin_username,
+      administrator: true,
       password_hashed,
+      creation_date: new Date(),
     })
     return admin.save()
   })
