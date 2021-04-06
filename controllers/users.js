@@ -67,8 +67,6 @@ exports.update_user = (req, res) => {
     'avatar',
   ]
 
-  console.log(user)
-
   if(user.administrator){
     modifiable_properties = modifiable_properties.concat([
       'administrator',
