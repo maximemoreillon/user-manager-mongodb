@@ -111,14 +111,14 @@ exports.get_user_count = (req, res) => {
 
 exports.create_admin_account = () => {
 
+  const admin_username = process.env.ADMIN_USERNAME || 'admin'
   const admin_password = process.env.ADMIN_PASSWORD || 'admin'
 
   hash_password(admin_password)
   .then(password_hashed => {
     const admin = new User({
-      username: 'admin',
-      display_name: 'Administrator',
-      email_address: 'admin@usermanager.com',
+      username: admin_username,
+      display_name: admin_username,
       password_hashed,
     })
     return admin.save()
