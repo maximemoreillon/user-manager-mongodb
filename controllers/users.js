@@ -26,6 +26,9 @@ exports.create_user = (req, res) => {
     password,
   } = req.body
 
+  if(!username) return res.status(400).send(`Username not defined`)
+  if(!password) return res.status(400).send(`Password not defined`)
+
   hash_password(password)
   .then(password_hashed => {
     const new_user = new User({
@@ -41,7 +44,12 @@ exports.create_user = (req, res) => {
   })
   .catch(error => {
     console.log(error)
-    res.status(500).send('Error')
+    if(error.code === 11000) {
+      const message = `User ${username} already exists`
+      console.log(`[Mongoose] User creation failed, user ${username} already exists`)
+      return res.status(500).send(message)
+    }
+    res.status(500).send(error)
   })
 }
 
