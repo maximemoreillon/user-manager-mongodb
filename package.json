@@ -9,6 +9,7 @@
   "author": "Maxime MOREILLON",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.1",
     "cookies": "^0.8.0",
     "cors": "^2.8.5",

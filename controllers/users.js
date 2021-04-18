@@ -136,7 +136,16 @@ exports.update_password = (req, res) => {
 }
 
 exports.get_users = (req, res) => {
-  User.find({})
+  // Todo: add skip and limit
+  let query = {}
+
+  if(req.query.ids){
+    query['$or'] = req.query.ids.map(id => {return {_id: id}})
+  }
+
+  User.find(query)
+  .skip(Number(req.query.skip || 0))
+  .limit(Number(req.query.limit || 0))
   .then(users => {
     console.log(`[Mongoose] Users queried`)
     res.send(users)
