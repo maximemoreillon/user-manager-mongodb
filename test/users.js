@@ -8,22 +8,28 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+let jwt
+
 // We will test for api users
-describe("/auth", () => {
+describe("/users", () => {
+
+  before( async () => {
+
+    await user_controller.create_admin_account()
+    const {body} = await request(app)
+      .post("/auth/login")
+      .send({username: 'admin', password: 'admin'})
+    jwt = body.jwt
+  })
 
   // We will test root GET related logics
-  describe("POST /login", () => {
-    console.log = function () {};
-    before( async () => {
-      await user_controller.create_admin_account()
-    })
-
+  describe("GET /", () => {
     // What should it do
     it("Should return 200", async () => {
+
       const res = await request(app)
-        .post("/auth/login")
-        .send({username: 'admin', password: 'admin'})
-        .expect('Content-Type', /json/)
+        .get("/users")
+        .set('Authorization', `Bearer ${jwt}`)
 
       expect(res.status).to.equal(200)
     })

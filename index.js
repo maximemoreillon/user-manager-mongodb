@@ -8,7 +8,10 @@ const pjson = require('./package.json')
 const auth_router = require('./routes/auth.js')
 const users_router = require('./routes/users.js')
 
+
+
 dotenv.config()
+
 
 // Mongoose connection
 const mongoose_options = {

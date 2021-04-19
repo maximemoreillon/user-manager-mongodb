@@ -173,7 +173,7 @@ exports.create_admin_account = () => {
   const admin_username = process.env.ADMIN_USERNAME || 'admin'
   const admin_password = process.env.ADMIN_PASSWORD || 'admin'
 
-  hash_password(admin_password)
+  return hash_password(admin_password)
   .then(password_hashed => {
     const admin = new User({
       username: admin_username,
@@ -190,5 +190,9 @@ exports.create_admin_account = () => {
   .catch(error => {
     if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
+    //reject(error)
   })
+
+
+
 }
