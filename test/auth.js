@@ -17,7 +17,7 @@ describe("/auth", () => {
 
       const app = index.app
 
-      await sleep(2000);
+      //await sleep(2000);
 
       const res = await request(app)
         .post("/auth/login")
