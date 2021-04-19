@@ -13,7 +13,7 @@ describe("/auth", () => {
   // We will test root GET related logics
   describe("POST /auth/login", () => {
     // What should it do
-    it("Should accept admin credentials", async () => {
+    it("Should accept admin credentials", async (done) => {
 
       const app = index.app
 
@@ -25,7 +25,7 @@ describe("/auth", () => {
         .send({username: 'admin', password: 'admin'})
         .set('Accept', 'application/json')
         .expect(200)
-        .expect(200, done);
+        .expect(200, done)
 
     })
   })
