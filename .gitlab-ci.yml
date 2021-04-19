@@ -1,13 +1,40 @@
 stages:
-  - containerization
+  - test
+  - push
 
 variables:
   APPLICATION_NAME: user-manager-mongoose
   DOCKER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
 
+test:
+  stage: test
+  before_script:
+    - echo Setting up network if does not exist
+    - if [ -z "$(docker network ls | grep 'tdd')" ]; then docker network create tdd; fi
+    - echo "Running database"
+    - docker run --rm -d --name tdd-db --network tdd -h tdd-db mongo:4.4.4
+    - echo "Database is up"
+  script:
+    # Run test
+    - docker build -t ${DOCKER_IMAGE} .
+    - >
+      docker run
+      --rm
+      --name tdd
+      --network tdd
+      -e MONGODB_URL=mongodb://tdd-db
+      ${DOCKER_IMAGE}-dev
+      npm run coverage
+  after_script:
+    # Remove database and network
+    - echo "Stopping test database"
+    - docker container stop tdd-db
+    - echo "Stopped test database"
+    - echo Removing network if exist
+    - if [ -n "$(docker network ls | grep 'tdd')" ]; then docker network rm tdd; fi
 
-containerization:
-  stage: containerization
+push:
+  stage: push
   tags:
     - moreillon
   script:
