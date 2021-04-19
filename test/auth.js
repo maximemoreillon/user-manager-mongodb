@@ -5,13 +5,9 @@ const app = require("../index.js").app
 
 // We will test for api users
 describe("/auth", () => {
-  // What to do after each test
-  beforeEach(async () => {
-    await User.deleteMany({})
-  })
 
   // We will test root GET related logics
-  describe("GET /auth/login", () => {
+  describe("POST /auth/login", () => {
     // What should it do
     it("Should accept admin credentials", async () => {
 
