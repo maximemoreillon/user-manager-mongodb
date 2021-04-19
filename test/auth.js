@@ -23,8 +23,9 @@ describe("/auth", () => {
       request(app)
         .post("/auth/login")
         .send({username: 'admin', password: 'admin'})
-        .set('Accept', 'application/json')
-        .expect(200, done)
+        //.set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200, done);
 
     })
   })
