@@ -24,7 +24,6 @@ describe("/auth", () => {
         .post("/auth/login")
         .send({username: 'admin', password: 'admin'})
         .set('Accept', 'application/json')
-        .expect(200)
         .expect(200, done)
 
     })
