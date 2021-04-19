@@ -1,4 +1,5 @@
 const User = require('./models/user.js')
+const Cookies = require('cookies')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
