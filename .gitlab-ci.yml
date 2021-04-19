@@ -25,7 +25,7 @@ test:
       --name tdd
       --network tdd
       -e MONGODB_URL=mongodb://tdd-db
-      ${DOCKER_IMAGE}-dev
+      ${DOCKER_IMAGE}
       npm run coverage
   after_script:
     # Remove database and network
