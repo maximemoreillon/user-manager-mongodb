@@ -14,9 +14,13 @@ describe("/auth", () => {
       const res = await request(app)
         .post("/auth/login")
         .send({username: 'admin', password: 'admin'})
-
-      // Test the expected outcome
-      expect(res.status).to.equal(200)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .end(function(err, res) {
+          if (err) return done(err);
+          return done();
+        });
     })
   })
 
