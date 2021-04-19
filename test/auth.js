@@ -1,7 +1,7 @@
 const User = require("../models/user.js")
 const request = require("supertest")
 const expect = require("chai").expect
-const app = require("../index.js").app
+const index = require("../index.js")
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -14,6 +14,8 @@ describe("/auth", () => {
   describe("POST /auth/login", () => {
     // What should it do
     it("Should accept admin credentials", async () => {
+
+      const app = index.app
 
       await sleep(2000);
 
