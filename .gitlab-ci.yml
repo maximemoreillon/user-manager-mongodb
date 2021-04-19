@@ -8,6 +8,8 @@ variables:
 
 test:
   stage: test
+  tags:
+    - moreillon
   before_script:
     - echo Setting up network if does not exist
     - if [ -z "$(docker network ls | grep 'tdd')" ]; then docker network create tdd; fi
