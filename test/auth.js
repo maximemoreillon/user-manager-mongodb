@@ -4,28 +4,22 @@ const expect = require("chai").expect
 const app = require("../index.js").app
 
 // We will test for api users
-describe("/users", () => {
+describe("/auth", () => {
   // What to do after each test
   beforeEach(async () => {
     await User.deleteMany({})
   })
 
   // We will test root GET related logics
-  describe("GET /", () => {
+  describe("GET /auth/login", () => {
     // What should it do
-    it("should return all users", async () => {
+    it("Should accept admin credentials", async () => {
 
-      const users = [
-        { username: "user1" },
-        { username: "user2" },
-      ]
-      
-      await User.insertMany(users)
-      const res = await request(app).get("/users")
+      const credentials = {username: 'admin', password: 'admin'}
+      const res = await request(app).post("/auth/login", credentials)
 
       // Test the expected outcome
       expect(res.status).to.equal(200)
-      expect(res.body.length).to.equal(2)
     })
   })
 
