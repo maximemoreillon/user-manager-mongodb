@@ -11,12 +11,15 @@ function sleep(ms) {
 // We will test for api users
 describe("/auth", () => {
 
+  beforeEach( async () => {
+    console.log = function () {};
+    await User.deleteMany({})
+    await user_controller.create_admin_account()
+  })
+
+
   // We will test root GET related logics
   describe("POST /login", () => {
-    console.log = function () {};
-    before( async () => {
-      await user_controller.create_admin_account()
-    })
 
     // What should it do
     it("Should return 200", async () => {
