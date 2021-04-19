@@ -20,13 +20,12 @@ describe("/auth", () => {
       // Give time for admin creation
       await sleep(2000);
 
-      const res = await request(app)
+      request(app)
         .post("/auth/login")
         .send({username: 'admin', password: 'admin'})
         .set('Accept', 'application/json')
-
-      console.log(res.body)
-      expect(res.status).to.equal(200)
+        .expect(200)
+        .expect(200, done);
 
     })
   })
