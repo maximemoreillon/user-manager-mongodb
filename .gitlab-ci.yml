@@ -25,6 +25,7 @@ test:
       --name tdd
       --network tdd
       -e MONGODB_URL=mongodb://tdd-db
+      -e JWT_SECRET=keyboardcat
       ${DOCKER_IMAGE}
       npm run coverage
   after_script:
