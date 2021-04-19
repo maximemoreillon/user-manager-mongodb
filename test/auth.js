@@ -11,8 +11,9 @@ describe("/auth", () => {
     // What should it do
     it("Should accept admin credentials", async () => {
 
-      const credentials = {username: 'admin', password: 'admin'}
-      const res = await request(app).post("/auth/login", credentials)
+      const res = await request(app)
+        .post("/auth/login")
+        .send({username: 'admin', password: 'admin'})
 
       // Test the expected outcome
       expect(res.status).to.equal(200)
