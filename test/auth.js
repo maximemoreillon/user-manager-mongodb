@@ -17,6 +17,8 @@ describe("/auth", () => {
         .set('Accept', 'application/json')
         .expect(200)
 
+      console.log(res.body)
+
     })
   })
 
