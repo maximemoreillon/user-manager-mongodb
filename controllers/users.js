@@ -169,9 +169,9 @@ exports.update_password = (req, res) => {
 }
 
 exports.get_users = (req, res) => {
-  // Todo: add skip and limit
-  let query = {}
 
+  let query = {}
+  
   if(req.query.ids){
     query['$or'] = req.query.ids.map(id => {return {_id: id}})
   }
