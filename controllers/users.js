@@ -21,10 +21,7 @@ exports.create_user = (req, res) => {
   }
 
   // Todo: validation with joy
-  const {
-    username,
-    password,
-  } = req.body
+  const { username, password } = req.body
 
   if(!username) return res.status(400).send(`Username not defined`)
   if(!password) return res.status(400).send(`Password not defined`)
@@ -34,6 +31,7 @@ exports.create_user = (req, res) => {
     const new_user = new User({
       username,
       password_hashed,
+      display_name: username,
       creation_date: new Date(),
     })
     return new_user.save()
@@ -106,7 +104,7 @@ exports.update_user = (req, res) => {
 
   User.updateOne({_id: user_id}, req.body)
   .then((result) => {
-    console.log(`[Mongoose] USer ${user_id} updated`)
+    console.log(`[Mongoose] User ${user_id} updated`)
     res.send(result)
   })
   .catch(error => {
@@ -132,6 +130,41 @@ exports.get_user = (req, res) => {
 }
 
 exports.update_password = (req, res) => {
+
+  const {new_password, new_password_confirm, current_password} = req.body
+
+  if(!new_password) return res.status(400).send(`New nassword missing`)
+  if(!new_password_confirm) return res.status(400).send(`New password confirm missing`)
+
+  if(new_password !== new_password_confirm) return res.status(400).send(`New password confirm does not match`)
+
+  const current_user = res.locals.user
+
+  let user_id = req.params.user_id
+  if(user_id === 'self') user_id = current_user._id
+
+  if(String(user_id) !== String(current_user._id) && !current_user.administrator) {
+    return res.status(403).send(`Unauthorized to modify another user's password`)
+  }
+
+  if(!current_user.administrator && !current_password) {
+    return res.status(400).send(`Current password missing`)
+  }
+
+  return hash_password(new_password)
+  .then(password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
+  .then((result) => {
+    console.log(`[Mongoose] Password of user ${user_id} updated`)
+    res.send(result)
+  })
+  .catch(error => {
+    console.log(error)
+    res.status(500).send(error)
+  })
+
+
+
+
   res.status(501).send('Not implemented')
 }
 

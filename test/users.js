@@ -4,10 +4,6 @@ const expect = require("chai").expect
 const app = require("../index.js").app
 const user_controller = require('../controllers/users.js')
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 let jwt
 
 // We will test for api users
