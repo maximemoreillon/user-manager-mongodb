@@ -49,11 +49,18 @@ describe("/auth", () => {
   })
 
   describe("POST /login", () => {
-    it("Should return 200", async () => {
+    it("Should reject invalid credentials", async () => {
+      const res = await request(app)
+        .post("/auth/login")
+        .send({username: 'banana', password: 'banana'})
+
+      expect(res.status).to.equal(403)
+    })
+
+    it("Should accept admin credentials", async () => {
       const res = await request(app)
         .post("/auth/login")
         .send({username: 'admin', password: 'admin'})
-        .expect('Content-Type', /json/)
 
       expect(res.status).to.equal(200)
     })

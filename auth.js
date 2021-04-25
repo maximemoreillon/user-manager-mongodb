@@ -87,14 +87,14 @@ exports.login = (req, res) => {
 
   User.findOne(query)
   .then( user => {
-    if(!user) throw `User ${username} not found`
+    if(!user) throw {code: 403, message: `User ${username} not found`}
     return check_password(password, user)
   })
   .then( generate_token )
   .then( jwt => { res.send({jwt}) })
   .catch(error => {
     console.log(error)
-    res.status(500).send(error)
+    res.status(error.code || 500).send(error.message || error)
   })
 }
 

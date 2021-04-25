@@ -60,6 +60,21 @@ describe("/users", () => {
 
       expect(res.status).to.equal(200)
     })
+
+    it("Should prevent creation of duplicate user", async () => {
+
+      await request(app)
+        .post("/users")
+        .send({username: 'test_user', password: 'banana'})
+        .set('Authorization', `Bearer ${jwt}`)
+
+      const res = await request(app)
+        .post("/users")
+        .send({username: 'test_user', password: 'banana'})
+        .set('Authorization', `Bearer ${jwt}`)
+
+      expect(res.status).to.equal(400)
+    })
   })
 
   describe("GET /:user_id", () => {

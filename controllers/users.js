@@ -54,7 +54,7 @@ exports.create_user = (req, res) => {
     if(error.code === 11000) {
       const message = `User ${username} already exists`
       console.log(`[Mongoose] User creation failed, user ${username} already exists`)
-      return res.status(500).send(message)
+      return res.status(400).send(message)
     }
     res.status(500).send(error)
   })
