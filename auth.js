@@ -31,6 +31,8 @@ const generate_token = (user) => {
   })
 }
 
+exports.generate_token = generate_token
+
 const decode_token = (token) => {
   return new Promise( (resolve, reject) => {
     const JWT_SECRET = process.env.JWT_SECRET
@@ -42,6 +44,8 @@ const decode_token = (token) => {
     })
   })
 }
+
+exports.decode_token = decode_token
 
 const retrieve_jwt = (req, res) => {
   return new Promise( (resolve, reject) => {

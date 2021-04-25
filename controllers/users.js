@@ -14,6 +14,8 @@ const hash_password = (password_plain) => {
   })
 }
 
+exports.hash_password = hash_password
+
 const error_handling = (error, res) => {
   const {code, message} = error
   console.log(message ?? error)

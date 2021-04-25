@@ -6,7 +6,6 @@ const user_controller = require('../controllers/users.js')
 
 let jwt
 
-// We will test for api users
 describe("/users", () => {
 
   beforeEach( async () => {
@@ -20,11 +19,8 @@ describe("/users", () => {
   })
 
 
-  // We will test root GET related logics
   describe("GET /", () => {
-    // What should it do
     it("Should return all users", async () => {
-
       const res = await request(app)
         .get("/users")
         .set('Authorization', `Bearer ${jwt}`)
@@ -35,7 +31,6 @@ describe("/users", () => {
   })
 
   describe("POST /", () => {
-    // What should it do
     it("Should prevent creation of user without password", async () => {
 
       const res = await request(app)
@@ -68,7 +63,6 @@ describe("/users", () => {
   })
 
   describe("GET /:user_id", () => {
-    // What should it do
 
     it("Should get the new user", async () => {
 
@@ -97,7 +91,6 @@ describe("/users", () => {
   })
 
   describe("DELETE /:user_id", () => {
-    // What should it do
 
     it("Should allow the deletion of a user", async () => {
 
@@ -115,7 +108,6 @@ describe("/users", () => {
   })
 
   describe("PATCH /:user_id", () => {
-    // What should it do
 
     it("Should prevent username modification", async () => {
 
@@ -149,7 +141,6 @@ describe("/users", () => {
   })
 
   describe("PUT /:user_id/password", () => {
-    // What should it do
 
     it("Should prevent normal users from updating passwords with incorrect current password", async () => {
 
