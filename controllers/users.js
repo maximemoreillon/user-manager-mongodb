@@ -14,6 +14,12 @@ const hash_password = (password_plain) => {
   })
 }
 
+const error_handling = (error, res) => {
+  const {code, message} = error
+  console.log(message ?? error)
+  res.status(code ?? 500).send(message ?? error)
+}
+
 exports.create_user = (req, res) => {
 
   const {user} = res.locals
@@ -170,15 +176,8 @@ exports.update_password = (req, res) => {
     console.log(`[Mongoose] Password of user ${user_id} updated`)
     res.send(result)
   })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
+  .catch(error => { error_handling(error, res) })
 
-
-
-
-  res.status(501).send('Not implemented')
 }
 
 exports.get_users = (req, res) => {
