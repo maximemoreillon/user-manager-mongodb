@@ -1,6 +1,7 @@
 const User = require('../models/user.js')
 const bcrypt = require('bcrypt')
 const dotenv = require('dotenv')
+const auth = require('../auth.js')
 dotenv.config()
 
 const hash_password = (password_plain) => {
@@ -147,12 +148,24 @@ exports.update_password = (req, res) => {
     return res.status(403).send(`Unauthorized to modify another user's password`)
   }
 
-  if(!current_user.administrator && !current_password) {
-    return res.status(400).send(`Current password missing`)
+  if(!current_user.administrator) {
+    if(!current_password) {
+      return res.status(400).send(`Current password missing`)
+    }
+
+    if(current_password) {
+
+    }
   }
 
-  return hash_password(new_password)
-  .then(password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
+  return User.findById(user_id)
+  .then( (user) => {
+    // No need for current password check for admins
+    if(current_user.administrator) return
+    return auth.check_password(current_password, user)
+  })
+  .then( () => hash_password(new_password) )
+  .then( password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
   .then((result) => {
     console.log(`[Mongoose] Password of user ${user_id} updated`)
     res.send(result)
@@ -171,7 +184,7 @@ exports.update_password = (req, res) => {
 exports.get_users = (req, res) => {
 
   let query = {}
-  
+
   if(req.query.ids){
     query['$or'] = req.query.ids.map(id => {return {_id: id}})
   }

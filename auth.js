@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 
 
 const check_password = (password_plain, user) => {
+  // need to be passed user so as to continue chain
   return new Promise ( (resolve, reject) => {
     bcrypt.compare(password_plain, user.password_hashed, (error, password_correct) => {
       if(error) return reject({code: 500, message: error})
@@ -14,6 +15,8 @@ const check_password = (password_plain, user) => {
     })
   })
 }
+
+exports.check_password = check_password
 
 const generate_token = (user) => {
   return new Promise( (resolve, reject) => {

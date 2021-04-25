@@ -148,4 +148,29 @@ describe("/users", () => {
     })
   })
 
+  describe("PUT /:user_id/password", () => {
+    // What should it do
+
+
+
+    it("Should allow password update", async () => {
+
+      const {body: {_id}} = await request(app)
+        .post("/users")
+        .send({username: 'test_user', password: 'banana'})
+        .set('Authorization', `Bearer ${jwt}`)
+
+      const res = await request(app)
+        .put(`/users/${_id}/password`)
+        .send({
+          new_password: 'apple',
+          new_password_confirm: 'apple',
+        })
+        .set('Authorization', `Bearer ${jwt}`)
+
+      expect(res.status).to.equal(200)
+    })
+
+  })
+
 })
