@@ -40,9 +40,12 @@ app.use(cors())
 
 app.get('/', (req, res) => {
   res.send({
-    application_name: 'User manager',
+    application_name: 'User manager (Mongoose version)',
     version: pjson.version,
-    author: pjson.author
+    author: pjson.author,
+    mongodb_url: process.env.MONGODB_URL || 'undefined',
+    mongodb_db: mongodb_db,
+
   })
 })
 
