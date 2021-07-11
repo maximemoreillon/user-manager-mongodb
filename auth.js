@@ -77,7 +77,8 @@ const retrieve_jwt = (req, res) => {
 
 exports.login = (req, res) => {
 
-  const {username, password} = req.body
+  const username = req.body.username || req.body.identifier
+  const password = req.body.password
 
   // Todo: use JOY
   if(!username) return res.status(400).send(`Missing username`)
