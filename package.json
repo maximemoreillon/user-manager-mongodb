@@ -1,6 +1,6 @@
 {
   "name": "user_manager_mongoose",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A simple user management and authentication system",
   "main": "index.js",
   "scripts": {

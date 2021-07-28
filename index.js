@@ -23,7 +23,19 @@ const mongodb_db = process.env.MONGODB_DB || 'user_manager_mongoose'
 const mongoose_url = `${process.env.MONGODB_URL}/${mongodb_db}`
 
 mongoose.set('useCreateIndex', true)
-mongoose.connect(mongoose_url, mongoose_options)
+
+function mongoose_connect(){
+  console.log('[Mongoose] Attempting connection...')
+  mongoose.connect(mongoose_url, mongoose_options)
+  .then(() => {console.log('[Mongoose] Connection successful')})
+  .catch(error => {
+    console.log('[Mongoose] Connection failed')
+    setTimeout(mongoose_connect,5000)
+  })
+}
+
+mongoose_connect()
+
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, '[Mongoose] connection error:'))
