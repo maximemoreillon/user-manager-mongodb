@@ -2,6 +2,8 @@ const User = require('../models/user.js')
 const bcrypt = require('bcrypt')
 const dotenv = require('dotenv')
 const auth = require('../auth.js')
+const mail = require('../mail.js')
+
 dotenv.config()
 
 const hash_password = (password_plain) => {
@@ -24,30 +26,30 @@ const error_handling = (error, res) => {
 
 exports.create_user = (req, res) => {
 
-  const {user} = res.locals
-  if(!user.administrator) {
-    return res.status(403).send(`Not allowed to create user unless administrator`)
-  }
-
   // Todo: validation with joy
-  const { username, password } = req.body
+  const { username, password, email_address} = req.body
 
   if(!username) return res.status(400).send(`Username not defined`)
   if(!password) return res.status(400).send(`Password not defined`)
+
+  const activated = res.locals.user?.administrator ? true : false
 
   hash_password(password)
   .then(password_hashed => {
     const new_user = new User({
       username,
       password_hashed,
+      email_address,
       display_name: username,
       creation_date: new Date(),
+      activated,
     })
     return new_user.save()
   })
-  .then((result) => {
+  .then((user) => {
     console.log(`[Mongoose] New user inserted`)
-    res.send(result)
+    res.send(user)
+    if(!activated) mail.send_activation_email(user)
   })
   .catch(error => {
     console.log(error)
@@ -62,11 +64,14 @@ exports.create_user = (req, res) => {
 
 exports.delete_user = (req, res) => {
 
-  const {user_id} = req.params
+  const {user} = res.locals
+  let {user_id} = req.params
+
+  if(user_id === 'self') user_id = user._id
   if(!user_id) return res.status(400).send(`User ID not defined`)
 
-  const {user} = res.locals
-  if(user._id.toString() !== user_id && !user.administrator) {
+
+  if(user._id.toString() !== user_id.toString() && !user.administrator) {
     return res.status(403).send(`Not allowed to delete another user`)
   }
 
@@ -88,19 +93,22 @@ exports.update_user = (req, res) => {
   if(user_id === 'self') user_id = user._id
   if(!user_id) return res.status(400).send(`User ID not defined`)
 
-  if(user._id.toString() !== user_id && !user.administrator) {
+  if(user._id.toString() !== user_id.toString() && !user.administrator) {
     return res.status(403).send(`Not allowed to modify another user`)
   }
 
   let modifiable_properties = [
     'display_name',
     'avatar',
+    'activated', // allowing users to activate their own accounts
   ]
 
   if(user.administrator){
     modifiable_properties = modifiable_properties.concat([
       'administrator',
       'locked',
+      'email_address',
+      'username',
     ])
   }
 
@@ -140,7 +148,8 @@ exports.get_user = (req, res) => {
 
 exports.update_password = (req, res) => {
 
-  const {new_password, new_password_confirm, current_password} = req.body
+  //const {new_password, new_password_confirm, current_password} = req.body
+  const {new_password, new_password_confirm} = req.body
 
   if(!new_password) return res.status(400).send(`New nassword missing`)
   if(!new_password_confirm) return res.status(400).send(`New password confirm missing`)
@@ -156,23 +165,22 @@ exports.update_password = (req, res) => {
     return res.status(403).send(`Unauthorized to modify another user's password`)
   }
 
-  if(!current_user.administrator) {
-    if(!current_password) {
-      return res.status(400).send(`Current password missing`)
-    }
+  // Previously, current password was needed to update
+  // if(!current_user.administrator) {
+  //   if(!current_password) {
+  //     return res.status(400).send(`Current password missing`)
+  //   }
+  // }
 
-    if(current_password) {
+  // return User.findById(user_id)
+  // .then( (user) => {
+  //   // No need for current password check for admins
+  //   if(current_user.administrator) return
+  //   return auth.check_password(current_password, user)
+  // })
+  // .then( () => hash_password(new_password) )
 
-    }
-  }
-
-  return User.findById(user_id)
-  .then( (user) => {
-    // No need for current password check for admins
-    if(current_user.administrator) return
-    return auth.check_password(current_password, user)
-  })
-  .then( () => hash_password(new_password) )
+  hash_password(new_password)
   .then( password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
   .then((result) => {
     console.log(`[Mongoose] Password of user ${user_id} updated`)
@@ -226,6 +234,7 @@ exports.create_admin_account = () => {
       username: admin_username,
       display_name: admin_username,
       administrator: true,
+      activated: true,
       password_hashed,
       creation_date: new Date(),
     })

@@ -157,30 +157,30 @@ describe("/users", () => {
 
   describe("PUT /:user_id/password", () => {
 
-    it("Should prevent normal users from updating passwords with incorrect current password", async () => {
-
-      const {body: {_id}} = await request(app)
-        .post("/users")
-        .send({username: 'test_user', password: 'banana'})
-        .set('Authorization', `Bearer ${jwt}`)
-
-      const {body} = await request(app)
-        .post("/auth/login")
-        .send({username: 'test_user', password: 'banana'})
-
-      const normal_user_jwt = body.jwt
-
-      const res = await request(app)
-        .put(`/users/${_id}/password`)
-        .send({
-          current_password: 'orange',
-          new_password: 'apple',
-          new_password_confirm: 'apple',
-        })
-        .set('Authorization', `Bearer ${normal_user_jwt}`)
-
-      expect(res.status).to.equal(403)
-    })
+    // it("Should prevent normal users from updating passwords with incorrect current password", async () => {
+    //
+    //   const {body: {_id}} = await request(app)
+    //     .post("/users")
+    //     .send({username: 'test_user', password: 'banana'})
+    //     .set('Authorization', `Bearer ${jwt}`)
+    //
+    //   const {body} = await request(app)
+    //     .post("/auth/login")
+    //     .send({username: 'test_user', password: 'banana'})
+    //
+    //   const normal_user_jwt = body.jwt
+    //
+    //   const res = await request(app)
+    //     .put(`/users/${_id}/password`)
+    //     .send({
+    //       current_password: 'orange',
+    //       new_password: 'apple',
+    //       new_password_confirm: 'apple',
+    //     })
+    //     .set('Authorization', `Bearer ${normal_user_jwt}`)
+    //
+    //   expect(res.status).to.equal(403)
+    // })
 
     it("Should allow password update", async () => {
 

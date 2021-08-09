@@ -4,6 +4,7 @@ const dotenv = require('dotenv')
 const bodyParser = require('body-parser')
 const pjson = require('./package.json')
 const db = require('./db.js')
+const mail = require('./mail.js')
 const user_controller = require('./controllers/users.js')
 const auth_router = require('./routes/auth.js')
 const users_router = require('./routes/users.js')
@@ -27,6 +28,9 @@ app.get('/', (req, res) => {
       url: db.url || 'Undefined',
       db: db.db,
       connected: db.connected(),
+    },
+    smtp: {
+      host: mail.options.host || 'undefined',
     }
 
 

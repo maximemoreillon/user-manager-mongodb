@@ -16,7 +16,30 @@ const check_password = (password_plain, user) => {
   })
 }
 
-exports.check_password = check_password
+const retrieve_jwt = (req, res) => {
+  return new Promise( (resolve, reject) => {
+    let jwt = undefined
+
+    // See if jwt available from authorization header
+    if(!jwt){
+      if(('authorization' in req.headers)) {
+        jwt = req.headers.authorization.split(" ")[1]
+      }
+    }
+
+    // Try to get JWT from cookies
+    if(!jwt) jwt = (new Cookies(req, res)).get('jwt')
+
+    // Try to get JWT from query
+    if(!jwt) jwt = req.query.jwt || req.query.token
+
+    if(!jwt) return reject(`JWT not found in either cookies or authorization header`)
+
+    resolve(jwt)
+  })
+
+}
+
 
 const generate_token = (user) => {
   return new Promise( (resolve, reject) => {
@@ -31,7 +54,6 @@ const generate_token = (user) => {
   })
 }
 
-exports.generate_token = generate_token
 
 const decode_token = (token) => {
   return new Promise( (resolve, reject) => {
@@ -45,37 +67,9 @@ const decode_token = (token) => {
   })
 }
 
-exports.decode_token = decode_token
-
-const retrieve_jwt = (req, res) => {
-  return new Promise( (resolve, reject) => {
-    let jwt = undefined
-
-    // See if jwt available from authorization header
-    if(!jwt){
-      if(('authorization' in req.headers)) {
-        jwt = req.headers.authorization.split(" ")[1]
-      }
-    }
-
-    // Try to get JWT from cookies
-    if(!jwt) {
-      let cookies = new Cookies(req, res)
-      jwt = cookies.get('jwt')
-    }
-
-    if(!jwt) {
-      return reject(`JWT not found in either cookies or authorization header`)
-    }
-
-    resolve(jwt)
-  })
-
-}
-
-
-
 exports.login = (req, res) => {
+
+  // Todo: Register last login time
 
   const username = req.body.username || req.body.identifier
   const password = req.body.password
@@ -89,6 +83,7 @@ exports.login = (req, res) => {
   User.findOne(query)
   .then( user => {
     if(!user) throw {code: 403, message: `User ${username} not found`}
+    if(!user.activated && !user.administrator) throw {code: 403, message: `User ${username} is not activated`}
     return check_password(password, user)
   })
   .then( generate_token )
@@ -106,9 +101,7 @@ exports.get_user_from_jwt = (req, res) => {
 exports.middleware = (req, res, next) => {
   retrieve_jwt(req, res)
    .then(decode_token)
-   .then(({user_id}) => {
-     return User.findOne({_id: user_id})
-   })
+   .then(({user_id}) => User.findOne({_id: user_id}))
    .then( user => {
      res.locals.user = user
      next()
@@ -118,3 +111,29 @@ exports.middleware = (req, res, next) => {
     res.status(403).send(error)
   })
 }
+
+exports.middleware_lax = (req, res, next) => {
+  retrieve_jwt(req, res)
+   .then(decode_token)
+   .then(({user_id}) => User.findOne({_id: user_id}))
+   .then( user => {res.locals.user = user})
+   .catch(() => {})
+   .finally(() => {next()})
+}
+
+exports.admin_only_middlware = (req, res, next) => {
+
+  if(!res.locals.user?.administrator) {
+    const message = `This resource is only available to administrators`
+    console.log(`[Auth] ${message}`)
+    res.status(403).send(message)
+    return
+  }
+
+  next()
+}
+
+
+exports.decode_token = decode_token
+exports.generate_token = generate_token
+exports.check_password = check_password
