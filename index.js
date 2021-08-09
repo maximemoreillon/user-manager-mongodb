@@ -31,6 +31,8 @@ app.get('/', (req, res) => {
     },
     smtp: {
       host: mail.options.host || 'undefined',
+      port: mail.options.port || 'undefined',
+      from: mail.options.from || 'undefined',
     }
 
 

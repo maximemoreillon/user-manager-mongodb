@@ -49,13 +49,14 @@ exports.create_user = (req, res) => {
   .then((user) => {
     console.log(`[Mongoose] New user inserted`)
     res.send(user)
-    if(!activated) mail.send_activation_email(user)
+
+    if(!activated) mail.send_activation_email({url: req.headers.origin, user})
   })
   .catch(error => {
     console.log(error)
     if(error.code === 11000) {
-      const message = `User ${username} already exists`
-      console.log(`[Mongoose] User creation failed, user ${username} already exists`)
+      const message = `Username or e-mail address already taken`
+      console.log(`[Mongoose] ${message}`)
       return res.status(400).send(message)
     }
     res.status(500).send(error)

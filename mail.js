@@ -16,10 +16,7 @@ const options = {
 const transporter = nodemailer.createTransport(options)
 
 
-const send_activation_email = (user) => {
-
-  console.log(user)
-
+const send_activation_email = ({url,user}) => {
 
   auth.generate_token(user)
   .then((token) => {
@@ -27,7 +24,7 @@ const send_activation_email = (user) => {
       from: process.env.SMTP_FROM,
       to: user.email_address,
       subject: 'Account activation',
-      text: `Click the following link to register your account: ${process.env.FRONT_URL}/activate?token=${token}`
+      text: `Click the following link to register your account: ${url}/activate?token=${token}`
     }
 
     transporter.sendMail(activation_email, function(error, info){
