@@ -39,7 +39,7 @@ exports.create_user = (req, res) => {
     const new_user = new User({
       username,
       password_hashed,
-      email_address,
+      email_address: email_address || undefined,
       display_name: username,
       creation_date: new Date(),
       activated,
