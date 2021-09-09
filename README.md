@@ -24,3 +24,9 @@ A user management system build around Mongoose
 | JWT_SECRET | Secret used to sign Tokens |
 | ADMIN_USERNAME | The default username for the administrator account, defaults to 'admin' |
 | ADMIN_PASSWORD | The default password for the administrator account, defaults to 'admin' |
+| ALLOW_REGISTRATION | Allows unregistered users to create an account |
+| SMTP_HOST | Host of the SMTP server (only used for registration) |
+| SMTP_PORT | PORT of the SMTP server (only used for registration) |
+| SMTP_USERNAME | Username for the  SMTP server (only used for registration) |
+| SMTP_PASSWORD | Password for the SMTP server (only used for registration) |
+| SMTP_FROM | E-mail from (only used for registration) |

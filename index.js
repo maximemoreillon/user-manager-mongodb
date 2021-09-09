@@ -29,13 +29,12 @@ app.get('/', (req, res) => {
       db: db.db,
       connected: db.connected(),
     },
+    registration_allowed: process.env.ALLOW_REGISTRATION || false,
     smtp: {
       host: mail.options.host || 'undefined',
       port: mail.options.port || 'undefined',
       from: mail.options.from || 'undefined',
     }
-
-
   })
 })
 

@@ -34,6 +34,10 @@ exports.create_user = (req, res) => {
 
   const activated = res.locals.user?.administrator ? true : false
 
+  if(!process.env.ALLOW_REGISTRATION && !res.locals.user?.administrator) {
+    return res.status(403).send(`Registration is not allowed`)
+  }
+
   hash_password(password)
   .then(password_hashed => {
     const new_user = new User({
