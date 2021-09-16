@@ -81,6 +81,7 @@ exports.login = (req, res) => {
   const query = { username }
 
   User.findOne(query)
+  .select('+password_hashed')
   .then( user => {
     if(!user) throw {code: 403, message: `User ${username} not found`}
     if(!user.activated && !user.administrator) throw {code: 403, message: `User ${username} is not activated`}
@@ -95,13 +96,13 @@ exports.login = (req, res) => {
 }
 
 exports.get_user_from_jwt = (req, res) => {
-  res.send('not implemented')
+  res.status(501).send('not implemented')
 }
 
 exports.middleware = (req, res, next) => {
   retrieve_jwt(req, res)
    .then(decode_token)
-   .then(({user_id}) => User.findOne({_id: user_id}))
+    .then(({ user_id }) => User.findOne({ _id: user_id }).select('+password_hashed'))
    .then( user => {
      res.locals.user = user
      next()
@@ -115,7 +116,7 @@ exports.middleware = (req, res, next) => {
 exports.middleware_lax = (req, res, next) => {
   retrieve_jwt(req, res)
    .then(decode_token)
-   .then(({user_id}) => User.findOne({_id: user_id}))
+    .then(({ user_id }) => User.findOne({ _id: user_id }).select('+password_hashed'))
    .then( user => {res.locals.user = user})
    .catch(() => {})
    .finally(() => {next()})

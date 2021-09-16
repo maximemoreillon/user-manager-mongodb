@@ -40,6 +40,7 @@ exports.create_user = (req, res) => {
 
   hash_password(password)
   .then(password_hashed => {
+
     const new_user = new User({
       username,
       password_hashed,
@@ -48,6 +49,7 @@ exports.create_user = (req, res) => {
       creation_date: new Date(),
       activated,
     })
+    
     return new_user.save()
   })
   .then((user) => {
