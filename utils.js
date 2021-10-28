@@ -12,13 +12,3 @@ exports.error_handling = (error, res) => {
   res.status(status_code).send(message)
   console.log(message)
 }
-
-exports.hash_password = (password_plain) => {
-  return new Promise ( (resolve, reject) => {
-    bcrypt.hash(password_plain, 10, (error, password_hashed) => {
-      if(error) return reject({code: 500, message: error})
-      resolve(password_hashed)
-      console.log(`[Bcrypt] Password hashed`)
-    })
-  })
-}

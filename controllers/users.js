@@ -1,11 +1,8 @@
 const User = require('../models/user.js')
 const dotenv = require('dotenv')
-const auth = require('../auth.js')
+const { hash_password } = require('../auth.js')
 const mail = require('../mail.js')
-const {
-  error_handling,
-  hash_password,
-} = require('../utils.js')
+const { error_handling } = require('../utils.js')
 
 dotenv.config()
 

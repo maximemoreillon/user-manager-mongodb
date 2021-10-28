@@ -5,8 +5,17 @@ const jwt = require('jsonwebtoken')
 
 const {
   error_handling,
-  hash_password,
 } = require('./utils.js')
+
+const hash_password = (password_plain) => {
+  return new Promise ( (resolve, reject) => {
+    bcrypt.hash(password_plain, 10, (error, password_hashed) => {
+      if(error) return reject({code: 500, message: error})
+      resolve(password_hashed)
+      console.log(`[Bcrypt] Password hashed`)
+    })
+  })
+}
 
 const check_password = (password_plain, password_hashed) => {
   return new Promise ( (resolve, reject) => {
@@ -166,3 +175,4 @@ exports.admin_only_middlware = (req, res, next) => {
 exports.decode_token = decode_token
 exports.generate_token = generate_token
 exports.check_password = check_password
+exports.hash_password = hash_password

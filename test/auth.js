@@ -17,12 +17,12 @@ describe("/auth", () => {
 
   describe("Password checking", () => {
     it("Should hash password successfully", async () => {
-      await user_controller.hash_password('banana')
+      await auth.hash_password('banana')
     })
 
     it("Should verify correct password successfully", async () => {
-      const password_hashed = await user_controller.hash_password('banana')
-      await auth.check_password('banana', {password_hashed})
+      const password_hashed = await auth.hash_password('banana')
+      await auth.check_password('banana', password_hashed)
     })
   })
 
