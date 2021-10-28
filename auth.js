@@ -3,15 +3,16 @@ const Cookies = require('cookies')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+const {
+  error_handling,
+  hash_password,
+} = require('./utils.js')
 
-const check_password = (password_plain, user) => {
-  // need to be passed user so as to continue chain
+const check_password = (password_plain, password_hashed) => {
   return new Promise ( (resolve, reject) => {
-    bcrypt.compare(password_plain, user.password_hashed, (error, password_correct) => {
-      if(error) return reject({code: 500, message: error})
-      if(!password_correct) return reject({code: 403, message: `Incorrect password`})
-      resolve(user)
-      console.log(`[Auth] Password correct for user ${user._id}`)
+    bcrypt.compare(password_plain, password_hashed, (error, password_correct) => {
+      if(error) return reject(error)
+      resolve(password_correct)
     })
   })
 }
@@ -67,59 +68,86 @@ const decode_token = (token) => {
   })
 }
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
 
-  // Todo: Register last login time
+  try {
+    // Todo: Register last login time
+    const username = req.body.username || req.body.identifier
+    const password = req.body.password
 
-  const username = req.body.username || req.body.identifier
-  const password = req.body.password
+    // Todo: use JOY
+    if(!username) throw {code: 400, message: `Missing username`}
+    if(!password) throw {code: 400, message: `Missing password`}
 
-  // Todo: use JOY
-  if(!username) return res.status(400).send(`Missing username`)
-  if(!password) return res.status(400).send(`Missing password`)
+    // currently, can only login using username
+    const query = { username }
 
-  const query = { username }
+    const user = await User.findOne(query)
+      .select('+password_hashed')
 
-  User.findOne(query)
-  .select('+password_hashed')
-  .then( user => {
     if(!user) throw {code: 403, message: `User ${username} not found`}
+
+    // Prevent deactivated users from loggign in
     if(!user.activated && !user.administrator) throw {code: 403, message: `User ${username} is not activated`}
-    return check_password(password, user)
-  })
-  .then( generate_token )
-  .then( jwt => { res.send({jwt}) })
-  .catch(error => {
-    console.log(error)
-    res.status(error.code || 500).send(error.message || error)
-  })
+
+    const password_correct = await check_password(password, user.password_hashed)
+
+    if(!password_correct) throw {code: 403, message: `Incorrect password`}
+
+    const jwt = await generate_token(user)
+
+    res.send({jwt})
+
+    console.log(`[Auth] Successful login for user ${user._id}`)
+
+  }
+  catch (error) {
+    error_handling(error,res)
+  }
+
 }
 
 exports.get_user_from_jwt = (req, res) => {
   res.status(501).send('not implemented')
 }
 
-exports.middleware = (req, res, next) => {
-  retrieve_jwt(req, res)
-   .then(decode_token)
-    .then(({ user_id }) => User.findOne({ _id: user_id }).select('+password_hashed'))
-   .then( user => {
-     res.locals.user = user
-     next()
-   })
-   .catch( error => {
-    console.log(error)
-    res.status(403).send(error)
-  })
+exports.middleware = async (req, res, next) => {
+
+  try {
+    const token = await retrieve_jwt(req, res)
+    const {user_id} = await decode_token(token)
+
+    const user = await User.findOne({ _id: user_id })
+      .select('+password_hashed')
+
+    res.locals.user = user
+
+    next()
+
+  } catch (error) {
+    error_handling(error,res)
+  }
 }
 
-exports.middleware_lax = (req, res, next) => {
-  retrieve_jwt(req, res)
-   .then(decode_token)
-    .then(({ user_id }) => User.findOne({ _id: user_id }).select('+password_hashed'))
-   .then( user => {res.locals.user = user})
-   .catch(() => {})
-   .finally(() => {next()})
+exports.middleware_lax = async (req, res, next) => {
+
+
+  try {
+    const token = await retrieve_jwt(req, res)
+    const {user_id} = await decode_token(token)
+
+    const user = await User.findOne({ _id: user_id })
+      .select('+password_hashed')
+
+    res.locals.user = user
+
+  } catch (error) {
+    // Nothing
+  }
+  finally {
+    next()
+  }
+
 }
 
 exports.admin_only_middlware = (req, res, next) => {

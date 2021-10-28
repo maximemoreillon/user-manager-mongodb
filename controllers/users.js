@@ -1,109 +1,17 @@
 const User = require('../models/user.js')
-const bcrypt = require('bcrypt')
 const dotenv = require('dotenv')
 const auth = require('../auth.js')
 const mail = require('../mail.js')
+const {
+  error_handling,
+  hash_password,
+} = require('../utils.js')
 
 dotenv.config()
 
-const hash_password = (password_plain) => {
-  return new Promise ( (resolve, reject) => {
-    bcrypt.hash(password_plain, 10, (error, password_hashed) => {
-      if(error) return reject({code: 500, message: error})
-      resolve(password_hashed)
-      console.log(`[Bcrypt] Password hashed`)
-    })
-  })
-}
+const restrict_modifyable_properties = (properties, user) => {
 
-exports.hash_password = hash_password
-
-const error_handling = (error, res) => {
-  const {code, message} = error
-  console.log(message ?? error)
-  res.status(code ?? 500).send(message ?? error)
-}
-
-exports.create_user = (req, res) => {
-
-  // Todo: validation with joy
-  const { username, password, email_address} = req.body
-
-  if(!username) return res.status(400).send(`Username not defined`)
-  if(!password) return res.status(400).send(`Password not defined`)
-
-  const activated = res.locals.user?.administrator ? true : false
-
-  if(!process.env.ALLOW_REGISTRATION && !res.locals.user?.administrator) {
-    return res.status(403).send(`Registration is not allowed`)
-  }
-
-  hash_password(password)
-  .then(password_hashed => {
-
-    const new_user = new User({
-      username,
-      password_hashed,
-      email_address,
-      display_name: username,
-      creation_date: new Date(),
-      activated,
-    })
-    
-    return new_user.save()
-  })
-  .then((user) => {
-    console.log(`[Mongoose] New user inserted`)
-    res.send(user)
-
-    if(!activated) mail.send_activation_email({url: req.headers.origin, user})
-  })
-  .catch(error => {
-    console.log(error)
-    if(error.code === 11000) {
-      const message = `Username or e-mail address already taken`
-      console.log(`[Mongoose] ${message}`)
-      return res.status(400).send(message)
-    }
-    res.status(500).send(error)
-  })
-}
-
-exports.delete_user = (req, res) => {
-
-  const {user} = res.locals
-  let {user_id} = req.params
-
-  if(user_id === 'self') user_id = user._id
-  if(!user_id) return res.status(400).send(`User ID not defined`)
-
-
-  if(user._id.toString() !== user_id.toString() && !user.administrator) {
-    return res.status(403).send(`Not allowed to delete another user`)
-  }
-
-  User.deleteOne({_id: user_id})
-  .then(() => {
-    console.log(`[Mongoose] User ${user_id} deleted`)
-    res.send(`User ${user_id} deleted`)
-  })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
-}
-
-exports.update_user = (req, res) => {
-
-  const {user} = res.locals
-  let {user_id} = req.params
-  if(user_id === 'self') user_id = user._id
-  if(!user_id) return res.status(400).send(`User ID not defined`)
-
-  if(user._id.toString() !== user_id.toString() && !user.administrator) {
-    return res.status(403).send(`Not allowed to modify another user`)
-  }
-
+  // Allow users to only modify some properties
   let modifiable_properties = [
     'display_name',
     'avatar',
@@ -119,38 +27,129 @@ exports.update_user = (req, res) => {
     ])
   }
 
-  for (let [key, value] of Object.entries(req.body)) {
+  for (let [key, value] of Object.entries(properties)) {
     if(!modifiable_properties.includes(key)) {
       console.log(`Unauthorized attempt to modify property ${key}`)
-      return res.status(403).send(`Unauthorized to modify ${key}`)
+      throw {code: 403, message: `Unauthorized to modify ${key}`}
     }
   }
-
-  User.updateOne({_id: user_id}, req.body)
-  .then((result) => {
-    console.log(`[Mongoose] User ${user_id} updated`)
-    res.send(result)
-  })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
 }
 
-exports.get_user = (req, res) => {
-  let {user_id} = req.params
-  if(user_id === 'self') user_id = res.locals.user
-  if(!user_id) return res.status(400).send(`User ID not defined`)
+exports.create_user = async (req, res) => {
 
-  User.findById(user_id)
-  .then(user => {
-    console.log(`[Mongoose] User ${user._id} queried`)
+  try {
+    // Todo: validation with joy
+    const { username, password, email_address} = req.body
+
+    // Those woule be caught by mongoose
+    // Email is caught by mongoose
+    if(!username) throw {code: 400, message: `Username not defined`}
+    if(!password) throw {code: 400, message: `Password not defined`}
+
+    // Email activation only necessary if user registers himself
+    const activated = res.locals.user?.administrator ? true : false
+
+    if(!process.env.ALLOW_REGISTRATION && !res.locals.user?.administrator) {
+      throw {code: 404, message: `Registration is not allowed unless administrator`}
+    }
+
+    const password_hashed = await hash_password(password)
+
+    const new_user = new User({
+      username,
+      password_hashed,
+      email_address,
+      display_name: username,
+      creation_date: new Date(),
+      activated,
+    })
+
+    const saved_user = await new_user.save()
+
+    // Send activation email if necessary
+    if(!activated) await mail.send_activation_email({url: req.headers.origin, user: saved_user})
+
+    res.send(saved_user)
+    console.log(`[Mongoose] User ${saved_user._id} inserted`)
+
+
+
+  }
+  catch (error) {
+    error_handling(error,res)
+  }
+
+}
+
+exports.delete_user = async (req, res) => {
+
+  try {
+    const {user} = res.locals
+    let {user_id} = req.params
+
+    if(user_id === 'self') user_id = user._id
+    if(!user_id) throw {code: 400, message: `User ID not defined`}
+
+    if(user._id.toString() !== user_id.toString() && !user.administrator) {
+      throw {code: 403, message: `Not allowed to delete another user`}
+    }
+
+    await User.deleteOne({_id: user_id})
+
+    res.send({_id: user_id})
+
+    console.log(`[Mongoose] User ${user_id} deleted`)
+
+  }  catch (error) {
+    error_handling(error,res)
+  }
+}
+
+exports.update_user = async (req, res) => {
+
+  try {
+
+    const {user} = res.locals
+    let {user_id} = req.params
+    const properties = req.body
+
+    if(user_id === 'self') user_id = user._id
+    if(!user_id) return res.status(400).send(`User ID not defined`)
+
+    if(user._id.toString() !== user_id.toString() && !user.administrator) {
+      throw {code: 403, message: `Not allowed to update another user`}
+    }
+
+    restrict_modifyable_properties(properties, user)
+
+    const result = await User.updateOne({_id: user_id}, properties)
+
+    res.send(result)
+    console.log(`[Mongoose] User ${user_id} updated`)
+
+  }  catch (error) {
+    error_handling(error,res)
+  }
+}
+
+exports.get_user = async (req, res) => {
+
+  try {
+    // Get user ID from query
+    let {user_id} = req.params
+
+    // If user is self, then use ID of user currently logged in
+    if(user_id === 'self') user_id = res.locals.user
+    if(!user_id) throw {code: 400, message: `User ID not defined`}
+
+    const user = await User.findById(user_id)
     res.send(user)
-  })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
+    console.log(`[Mongoose] User ${user._id} queried`)
+  }
+  catch (error) {
+    error_handling(error,res)
+  }
+
 }
 
 exports.update_password = (req, res) => {
@@ -197,37 +196,41 @@ exports.update_password = (req, res) => {
 
 }
 
-exports.get_users = (req, res) => {
+exports.get_users = async (req, res) => {
 
-  let query = {}
+  try {
 
-  if(req.query.ids){
-    query['$or'] = req.query.ids.map(id => {return {_id: id}})
+    // A list of user IDs can be passed as filter
+    // TODO: More filters and pagination
+    let query = {}
+    if(req.query.ids){
+      query['$or'] = req.query.ids.map(_id => ({_id}) )
+    }
+
+    const users = await User.find(query)
+      .skip(Number(req.query.skip || 0))
+      .limit(Number(req.query.limit || 0))
+
+    res.send(users)
+    console.log(`[Mongoose] Users queried`)
+
+  }
+  catch (error) {
+    error_handling(error,res)
   }
 
-  User.find(query)
-  .skip(Number(req.query.skip || 0))
-  .limit(Number(req.query.limit || 0))
-  .then(users => {
-    console.log(`[Mongoose] Users queried`)
-    res.send(users)
-  })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
 }
 
-exports.get_user_count = (req, res) => {
-  User.countDocuments({})
-  .then(user_count => {
-    console.log(`[Mongoose] User count queried`)
+exports.get_user_count = async (req, res) => {
+
+  try {
+    const user_count = await User.countDocuments({})
     res.send({user_count})
-  })
-  .catch(error => {
-    console.log(error)
-    res.status(500).send(error)
-  })
+    console.log(`[Mongoose] User count queried`)
+  }
+  catch (error) {
+    error_handling(error,res)
+  }
 }
 
 exports.create_admin_account = () => {
@@ -253,7 +256,6 @@ exports.create_admin_account = () => {
   .catch(error => {
     if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
-    //reject(error)
   })
 
 

@@ -16,10 +16,20 @@ const options = {
 const transporter = nodemailer.createTransport(options)
 
 
-const send_activation_email = ({url,user}) => {
+const send_email = (email) => {
+  return new Promise((resolve, reject) => {
+    transporter.sendMail(email, (error, info) => {
+      if (error) reject(error)
+      else resolve(info)
+    })
+  })
+}
 
-  auth.generate_token(user)
-  .then((token) => {
+const send_activation_email = async ({url,user}) => {
+
+  try {
+    const token = await auth.generate_token(user)
+
     const activation_email = {
       from: process.env.SMTP_FROM,
       to: user.email_address,
@@ -27,32 +37,17 @@ const send_activation_email = ({url,user}) => {
       text: `Click the following link to register your account: ${url}/activate?token=${token}`
     }
 
-    transporter.sendMail(activation_email, function(error, info){
-      if (error) {
-        console.log(error);
-      } else {
-        console.log('Email sent: ' + info.response);
-      }
-    })
+    await send_email(activation_email)
 
-  })
-  .catch(error => {
-    console.log(error)
-  })
+    console.log(`Send activation email to user ${user._id}`)
+  } catch (e) {
+    throw `Error while sending activation email: ${e}`
+  }
+
 
 
 }
 
-
-
-
-// transporter.sendMail(mailOptions, function(error, info){
-//   if (error) {
-//     console.log(error);
-//   } else {
-//     console.log('Email sent: ' + info.response);
-//   }
-// })
 
 exports.trasnporter = transporter
 exports.options = options

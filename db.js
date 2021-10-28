@@ -14,7 +14,7 @@ const mongoose_url = `${process.env.MONGODB_URL}/${mongodb_db}`
 
 mongoose.set('useCreateIndex', true)
 
-function mongoose_connect(){
+exports.connect = () => {
   console.log('[Mongoose] Attempting initial connection...')
   mongoose.connect(mongoose_url, mongoose_options)
   .then(() => {console.log('[Mongoose] Initial connection successful')})
@@ -24,7 +24,6 @@ function mongoose_connect(){
   })
 }
 
-mongoose_connect()
 
 
 const db = mongoose.connection
