@@ -12,7 +12,7 @@ const hash_password = (password_plain) => {
     bcrypt.hash(password_plain, 10, (error, password_hashed) => {
       if(error) return reject({code: 500, message: error})
       resolve(password_hashed)
-      console.log(`[Bcrypt] Password hashed`)
+      //console.log(`[Bcrypt] Password hashed`)
     })
   })
 }

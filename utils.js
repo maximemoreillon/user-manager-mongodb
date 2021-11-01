@@ -1,5 +1,3 @@
-const bcrypt = require('bcrypt')
-
 exports.error_handling = (error, res) => {
 
   if(error.code === 11000) {

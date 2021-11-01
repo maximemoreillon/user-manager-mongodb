@@ -230,7 +230,7 @@ exports.get_user_count = async (req, res) => {
   }
 }
 
-exports.create_admin_account = () => {
+exports.create_admin_account = async () => {
 
   const admin_username = process.env.ADMIN_USERNAME || 'admin'
   const admin_password = process.env.ADMIN_PASSWORD || 'admin'
