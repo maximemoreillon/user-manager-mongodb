@@ -168,21 +168,6 @@ exports.update_password = (req, res) => {
     return res.status(403).send(`Unauthorized to modify another user's password`)
   }
 
-  // Previously, current password was needed to update
-  // if(!current_user.administrator) {
-  //   if(!current_password) {
-  //     return res.status(400).send(`Current password missing`)
-  //   }
-  // }
-
-  // return User.findById(user_id)
-  // .then( (user) => {
-  //   // No need for current password check for admins
-  //   if(current_user.administrator) return
-  //   return auth.check_password(current_password, user)
-  // })
-  // .then( () => hash_password(new_password) )
-
   hash_password(new_password)
   .then( password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
   .then((result) => {
@@ -232,12 +217,17 @@ exports.get_user_count = async (req, res) => {
 
 exports.create_admin_account = async () => {
 
-  const admin_username = process.env.ADMIN_USERNAME || 'admin'
-  const admin_password = process.env.ADMIN_PASSWORD || 'admin'
+  // destructuring with default values
+  try {
 
-  return hash_password(admin_password)
-  .then(password_hashed => {
-    const admin = new User({
+    const {
+      ADMIN_USERNAME: admin_username = 'admin',
+      ADMIN_PASSWORD: admin_password = 'admin'
+    } = process.env
+
+    const password_hashed = await hash_password(admin_password)
+
+    const admin = await User.create({
       username: admin_username,
       display_name: admin_username,
       administrator: true,
@@ -245,15 +235,19 @@ exports.create_admin_account = async () => {
       password_hashed,
       creation_date: new Date(),
     })
-    return admin.save()
-  })
-  .then((result) => {
+
     console.log(`[Mongoose] Admin account created`)
-  })
-  .catch(error => {
+    
+  } catch (error) {
     if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
-  })
+  }
+
+
+
+
+
+
 
 
 

@@ -7,82 +7,73 @@ const {
   error_handling,
 } = require('./utils.js')
 
-const hash_password = (password_plain) => {
-  return new Promise ( (resolve, reject) => {
-    bcrypt.hash(password_plain, 10, (error, password_hashed) => {
-      if(error) return reject({code: 500, message: error})
-      resolve(password_hashed)
-      //console.log(`[Bcrypt] Password hashed`)
-    })
+const hash_password = (password_plain) => new Promise ( (resolve, reject) => {
+  bcrypt.hash(password_plain, 10, (error, password_hashed) => {
+    if(error) return reject({code: 500, message: error})
+    resolve(password_hashed)
+    //console.log(`[Bcrypt] Password hashed`)
   })
-}
+})
 
-const check_password = (password_plain, password_hashed) => {
-  return new Promise ( (resolve, reject) => {
-    bcrypt.compare(password_plain, password_hashed, (error, password_correct) => {
-      if(error) return reject(error)
-      resolve(password_correct)
-    })
+const check_password = (password_plain, password_hashed) => new Promise ( (resolve, reject) => {
+  bcrypt.compare(password_plain, password_hashed, (error, password_correct) => {
+    if(error) return reject(error)
+    resolve(password_correct)
   })
-}
+})
 
-const retrieve_jwt = (req, res) => {
-  return new Promise( (resolve, reject) => {
-    let jwt = undefined
+const retrieve_jwt = (req, res) => new Promise( (resolve, reject) => {
+  let jwt = undefined
 
-    // See if jwt available from authorization header
-    if(!jwt){
-      if(('authorization' in req.headers)) {
-        jwt = req.headers.authorization.split(" ")[1]
-      }
+  // See if jwt available from authorization header
+  if(!jwt){
+    if(('authorization' in req.headers)) {
+      jwt = req.headers.authorization.split(" ")[1]
     }
+  }
 
-    // Try to get JWT from cookies
-    if(!jwt) jwt = (new Cookies(req, res)).get('jwt')
+  // Try to get JWT from cookies
+  if(!jwt) jwt = (new Cookies(req, res)).get('jwt')
 
-    // Try to get JWT from query
-    if(!jwt) jwt = req.query.jwt || req.query.token
+  // Try to get JWT from query
+  if(!jwt) jwt = req.query.jwt || req.query.token
 
-    if(!jwt) return reject(`JWT not found in either cookies or authorization header`)
+  if(!jwt) return reject(`JWT not found in either cookies or authorization header`)
 
-    resolve(jwt)
+  resolve(jwt)
+})
+
+
+
+
+const generate_token = (user) => new Promise( (resolve, reject) => {
+  const {JWT_SECRET} = process.env
+  if(!JWT_SECRET) return reject({code: 500, message: `Token secret not set`})
+  const token_content = { user_id: user._id }
+  jwt.sign(token_content, JWT_SECRET, (error, token) => {
+    if(error) return reject({code: 500, message: error})
+    resolve(token)
+    console.log(`[Auth] Token generated for user ${user._id}`)
   })
+})
 
-}
 
-
-const generate_token = (user) => {
-  return new Promise( (resolve, reject) => {
-    const JWT_SECRET = process.env.JWT_SECRET
-    if(!JWT_SECRET) return reject({code: 500, message: `Token secret not set`})
-    const token_content = { user_id: user._id }
-    jwt.sign(token_content, JWT_SECRET, (error, token) => {
-      if(error) return reject({code: 500, message: error})
-      resolve(token)
-      console.log(`[Auth] Token generated for user ${user._id}`)
-    })
+const decode_token = (token) => new Promise( (resolve, reject) => {
+  const {JWT_SECRET} = process.env
+  if(!JWT_SECRET) return reject({code: 500, message: `JWT_SECRET not set`})
+  jwt.verify(token, JWT_SECRET, (error, decoded_token) => {
+    if(error) return reject({code: 403, message: `Invalid JWT`})
+    resolve(decoded_token)
+    console.log(`[Auth] Token decoded successfully`)
   })
-}
-
-
-const decode_token = (token) => {
-  return new Promise( (resolve, reject) => {
-    const JWT_SECRET = process.env.JWT_SECRET
-    if(!JWT_SECRET) return reject({code: 500, message: `JWT_SECRET not set`})
-    jwt.verify(token, JWT_SECRET, (error, decoded_token) => {
-      if(error) return reject({code: 403, message: `Invalid JWT`})
-      resolve(decoded_token)
-      console.log(`[Auth] Token decoded successfully`)
-    })
-  })
-}
+})
 
 exports.login = async (req, res) => {
 
   try {
     // Todo: Register last login time
     const username = req.body.username || req.body.identifier
-    const password = req.body.password
+    const {password} = req.body
 
     // Todo: use JOY
     if(!username) throw {code: 400, message: `Missing username`}
