@@ -29,6 +29,7 @@ push:
   stage: push
   tags:
     - moreillon
+    - "x86"
   script:
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin;
     - docker build -t ${DOCKER_IMAGE} .
