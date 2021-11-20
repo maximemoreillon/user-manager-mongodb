@@ -8,8 +8,6 @@ const mail = require('./mail.js')
 const auth_router = require('./routes/auth.js')
 const users_router = require('./routes/users.js')
 
-
-
 dotenv.config()
 
 const EXPRESS_PORT = process.env.EXPRESS_PORT || 80
