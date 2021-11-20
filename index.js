@@ -44,4 +44,11 @@ app.listen(EXPRESS_PORT, () => {
   console.log(`[Express] App listening on ${EXPRESS_PORT}`)
 })
 
+// exporting app for tests
 exports.app = app
+
+// Stop on CTRL C (for docker)
+process.on('SIGINT', () => {
+  console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)" )
+  process.exit(0);
+})

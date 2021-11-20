@@ -1,7 +1,7 @@
 const User = require("../models/user.js")
 const request = require("supertest")
-const expect = require("chai").expect
-const app = require("../index.js").app
+const {expect} = require("chai")
+const {app} = require("../index.js")
 const user_controller = require('../controllers/users.js')
 const auth = require('../auth.js')
 
