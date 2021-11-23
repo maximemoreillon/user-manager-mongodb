@@ -2,7 +2,7 @@
 
 [![pipeline status](https://gitlab.com/moreillon_ci/user_manager_mongoose/badges/master/pipeline.svg)](https://gitlab.com/moreillon_ci/user_manager_mongoose/-/commits/master) 
 [![coverage report](https://gitlab.com/moreillon_ci/user_manager_mongoose/badges/master/coverage.svg)](https://gitlab.com/moreillon_ci/user_manager_mongoose/-/commits/master)
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/mosquitto-user-manager-mongoose)](https://artifacthub.io/packages/search?repo=mosquitto-user-manager-mongoose)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/user-manager-mongoose)](https://artifacthub.io/packages/search?repo=user-manager-mongoose)
 
 A user management system build around Mongoose
 
