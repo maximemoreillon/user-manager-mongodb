@@ -2,49 +2,23 @@ const User = require('./models/user.js')
 const Cookies = require('cookies')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const { error_handling } = require('./utils.js')
 
-const {
-  error_handling,
-} = require('./utils.js')
-
-const hash_password = (password_plain) => new Promise ( (resolve, reject) => {
-  bcrypt.hash(password_plain, 10, (error, password_hashed) => {
-    if(error) return reject({code: 500, message: error})
-    resolve(password_hashed)
-    //console.log(`[Bcrypt] Password hashed`)
-  })
-})
-
-const check_password = (password_plain, password_hashed) => new Promise ( (resolve, reject) => {
-  bcrypt.compare(password_plain, password_hashed, (error, password_correct) => {
-    if(error) return reject(error)
-    resolve(password_correct)
-  })
-})
+// aliases for bcrypt functions
+const hash_password = (password_plain) => bcrypt.hash(password_plain, 10)
+const check_password = (password_plain, password_hashed) => bcrypt.compare(password_plain, password_hashed)
 
 const retrieve_jwt = (req, res) => new Promise( (resolve, reject) => {
-  let jwt = undefined
 
-  // See if jwt available from authorization header
-  if(!jwt){
-    if(('authorization' in req.headers)) {
-      jwt = req.headers.authorization.split(" ")[1]
-    }
-  }
+  const jwt = req.headers.authorization?.split(" ")[1]
+    || (new Cookies(req, res)).get('jwt')
+    || req.query.jwt
+    || req.query.token
 
-  // Try to get JWT from cookies
-  if(!jwt) jwt = (new Cookies(req, res)).get('jwt')
-
-  // Try to get JWT from query
-  if(!jwt) jwt = req.query.jwt || req.query.token
-
-  if(!jwt) return reject(`JWT not found in either cookies or authorization header`)
+  if(!jwt) return reject(`JWT not provided`)
 
   resolve(jwt)
 })
-
-
-
 
 const generate_token = (user) => new Promise( (resolve, reject) => {
   const {JWT_SECRET} = process.env
