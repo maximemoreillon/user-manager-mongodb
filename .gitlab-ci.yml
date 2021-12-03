@@ -44,7 +44,7 @@ test:
       --name ${TEST_DB}
       --network ${TEST_NETWORK}
       --hostname ${TEST_DB}
-      mongo
+      mongo:4
   script:
     # Run test
     - >
