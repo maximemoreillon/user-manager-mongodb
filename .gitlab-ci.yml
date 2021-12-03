@@ -47,7 +47,6 @@ test:
       mongo
   script:
     # Run test
-    - docker build -t ${DOCKER_IMAGE} .
     - >
       docker run
       --rm
@@ -55,5 +54,11 @@ test:
       -e MONGODB_URL=mongodb://${TEST_DB}
       -e MONGODB_DB=user_manager_tdd
       -e JWT_SECRET=keyboardcat
-      ${DOCKER_IMAGE}
+      ${CONTAINER_IMAGE_TEST}
       npm run coverage
+    # Tagging
+    - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_TAGGED}
+    - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_LATEST}
+    # Pushing
+    - docker push ${CONTAINER_IMAGE_TAGGED}
+    - docker push ${CONTAINER_IMAGE_LATEST}
