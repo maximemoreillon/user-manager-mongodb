@@ -8,17 +8,14 @@ const { error_handling } = require('./utils.js')
 const hash_password = (password_plain) => bcrypt.hash(password_plain, 10)
 const check_password = (password_plain, password_hashed) => bcrypt.compare(password_plain, password_hashed)
 
-const retrieve_jwt = (req, res) => new Promise( (resolve, reject) => {
+const retrieve_jwt = (req, res) => {
 
-  const jwt = req.headers.authorization?.split(" ")[1]
+  return req.headers.authorization?.split(" ")[1]
     || (new Cookies(req, res)).get('jwt')
     || req.query.jwt
     || req.query.token
 
-  if(!jwt) return reject(`JWT not provided`)
-
-  resolve(jwt)
-})
+}
 
 const generate_token = (user) => new Promise( (resolve, reject) => {
   const {JWT_SECRET} = process.env
@@ -88,7 +85,8 @@ exports.get_user_from_jwt = (req, res) => {
 exports.middleware = async (req, res, next) => {
 
   try {
-    const token = await retrieve_jwt(req, res)
+    const token = retrieve_jwt(req, res)
+    if(!token) throw `Missing JWT`
     const {user_id} = await decode_token(token)
 
     const user = await User.findOne({ _id: user_id })
@@ -107,7 +105,8 @@ exports.middleware_lax = async (req, res, next) => {
 
 
   try {
-    const token = await retrieve_jwt(req, res)
+    const token = retrieve_jwt(req, res)
+    if(!token) throw `Missing JWT`
     const {user_id} = await decode_token(token)
 
     const user = await User.findOne({ _id: user_id })
