@@ -1,16 +1,50 @@
 stages:
+  - build
   - test
-  - push
 
 variables:
   APPLICATION_NAME: user-manager-mongoose
-  DOCKER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
+  CONTAINER_REGISTRY: ${DOCKER_HUB_USERNAME}
+  CONTAINER_IMAGE: ${DOCKER_HUB_USERNAME}/${APPLICATION_NAME}
+  CONTAINER_IMAGE_TEST: ${CONTAINER_IMAGE}:test
+  CONTAINER_IMAGE_LATEST: ${CONTAINER_IMAGE}:latest
+  CONTAINER_IMAGE_TAGGED: ${CONTAINER_IMAGE}:${CI_COMMIT_SHORT_SHA}
+
+  TEST_NETWORK: tdd
+  TEST_DB: tdd-db
+
+# Needed for Docker in docker build
+services:
+  - name: docker:19.03.12-dind
+
+build:
+  stage: build
+  tags:
+    - dind
+  before_script:
+    # Docker hub login
+    - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
+  script:
+    - docker build -t ${CONTAINER_IMAGE_TEST} .
+    - docker push ${CONTAINER_IMAGE_TEST}
 
 test:
   stage: test
   tags:
-    - testing
-
+    - dind
+  before_script:
+    - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
+    # Creating network for TDD
+    - docker network create ${TEST_NETWORK}
+    # Creating DB container in network
+    - >
+      docker run
+      -d
+      --rm
+      --name ${TEST_DB}
+      --network ${TEST_NETWORK}
+      --hostname ${TEST_DB}
+      mongo
   script:
     # Run test
     - docker build -t ${DOCKER_IMAGE} .
@@ -18,19 +52,8 @@ test:
       docker run
       --rm
       --name tdd
-      -e MONGODB_URL=mongodb://192.168.1.2
+      -e MONGODB_URL=mongodb://${TEST_DB}
       -e MONGODB_DB=user_manager_tdd
       -e JWT_SECRET=keyboardcat
       ${DOCKER_IMAGE}
       npm run coverage
-
-
-push:
-  stage: push
-  tags:
-    - moreillon
-    - "x86"
-  script:
-    - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin;
-    - docker build -t ${DOCKER_IMAGE} .
-    - docker push ${DOCKER_IMAGE}
