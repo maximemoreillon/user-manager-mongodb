@@ -6,8 +6,8 @@
 # User manager Mongoose
 
 A user management and authentication microservice built around Mongoose
-For more information, see this [![Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b)
-Available on [![Docker Hub]([![Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b))
+For more information, see this [Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b)
+Available on [Docker Hub]([![Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b))
 
 ## API
 | Route | Method | query/body | Description |
