@@ -1,10 +1,13 @@
-# User manager Mongoose
 
-[![pipeline status](https://gitlab.com/moreillon_ci/user_manager_mongoose/badges/master/pipeline.svg)](https://gitlab.com/moreillon_ci/user_manager_mongoose/-/commits/master) 
+[![pipeline status](https://gitlab.com/moreillon_ci/user_manager_mongoose/badges/master/pipeline.svg)](https://gitlab.com/moreillon_ci/user_manager_mongoose/-/commits/master)
 [![coverage report](https://gitlab.com/moreillon_ci/user_manager_mongoose/badges/master/coverage.svg)](https://gitlab.com/moreillon_ci/user_manager_mongoose/-/commits/master)
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/user-manager-mongoose)](https://artifacthub.io/packages/search?repo=user-manager-mongoose)
 
-A user management system build around Mongoose
+# User manager Mongoose
+
+A user management and authentication microservice built around Mongoose
+For more information, see this [![Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b)
+Available on [![Docker Hub]([![Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b))
 
 ## API
 | Route | Method | query/body | Description |
