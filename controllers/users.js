@@ -1,7 +1,10 @@
 const User = require('../models/user.js')
 const dotenv = require('dotenv')
 const { hash_password } = require('../auth.js')
-const mail = require('../mail.js')
+const {
+  send_activation_email,
+  send_password_reset_email,
+} = require('../mail.js')
 const { error_handling } = require('../utils.js')
 
 dotenv.config()
@@ -52,7 +55,7 @@ exports.create_user = async (req, res) => {
 
     const password_hashed = await hash_password(password)
 
-    const new_user = new User({
+    const user = await User.create({
       username,
       password_hashed,
       email_address,
@@ -61,13 +64,12 @@ exports.create_user = async (req, res) => {
       activated,
     })
 
-    const saved_user = await new_user.save()
-
     // Send activation email if necessary
-    if(!activated) await mail.send_activation_email({url: req.headers.origin, user: saved_user})
+    const mail_options = {url: req.headers.origin, user}
+    if(!activated) await send_activation_email(mail_options)
 
-    res.send(saved_user)
-    console.log(`[Mongoose] User ${saved_user._id} inserted`)
+    res.send(user)
+    console.log(`[Mongoose] User ${user._id} created`)
 
 
 
@@ -149,41 +151,46 @@ exports.get_user = async (req, res) => {
 
 }
 
-exports.update_password = (req, res) => {
+exports.update_password = async (req, res) => {
 
-  //const {new_password, new_password_confirm, current_password} = req.body
-  const {new_password, new_password_confirm} = req.body
+  try {
+    //const {new_password, new_password_confirm, current_password} = req.body
+    const {new_password, new_password_confirm} = req.body
 
-  if(!new_password) return res.status(400).send(`New nassword missing`)
-  if(!new_password_confirm) return res.status(400).send(`New password confirm missing`)
+    if(!new_password) throw {code: 400, message: `Missing password`}
+    if(!new_password_confirm) throw {code: 400, message: `Missing password confirm`}
+    if(new_password !== new_password_confirm) throw {code: 400, message: `Password confirm mismatch`}
 
-  if(new_password !== new_password_confirm) return res.status(400).send(`New password confirm does not match`)
+    const current_user = res.locals.user
 
-  const current_user = res.locals.user
+    let user_id = req.params.user_id
+    if(user_id === 'self') user_id = current_user._id
 
-  let user_id = req.params.user_id
-  if(user_id === 'self') user_id = current_user._id
+    if(String(user_id) !== String(current_user._id) && !current_user.administrator) {
+      throw {code: 400, message: `Unauthorized to modify another user's password`}
+    }
 
-  if(String(user_id) !== String(current_user._id) && !current_user.administrator) {
-    return res.status(403).send(`Unauthorized to modify another user's password`)
-  }
+    const password_hashed = await hash_password(new_password)
+    const result = await User.updateOne({_id: user_id}, {password_hashed})
 
-  hash_password(new_password)
-  .then( password_hashed => User.updateOne({_id: user_id}, {password_hashed}) )
-  .then((result) => {
     console.log(`[Mongoose] Password of user ${user_id} updated`)
     res.send(result)
-  })
-  .catch(error => { error_handling(error, res) })
+  }
+
+  catch (error) {
+    error_handling(error,res)
+  }
+
+
 
 }
 
 exports.get_users = async (req, res) => {
 
   try {
+    // TODO: More filters and pagination
 
     // A list of user IDs can be passed as filter
-    // TODO: More filters and pagination
     let query = {}
     if(req.query.ids){
       query['$or'] = req.query.ids.map(_id => ({_id}) )
@@ -204,6 +211,8 @@ exports.get_users = async (req, res) => {
 }
 
 exports.get_user_count = async (req, res) => {
+
+  // this should be combined with the above
 
   try {
     const user_count = await User.countDocuments({})
@@ -237,18 +246,31 @@ exports.create_admin_account = async () => {
     })
 
     console.log(`[Mongoose] Admin account created`)
-    
+
   } catch (error) {
     if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
   }
 
+}
 
 
+exports.password_reset = async (req, res) => {
+  try {
+    const {email_address} = req.body
+    if(!email_address) throw {code: 400, message: `Missing email_address`}
+    const user = await User.findOne({email_address})
+    if(!user) throw {code: 400, message: `User with email_address ${email_address} not found`}
 
+    const mail_options = {url: req.headers.origin, user}
+    await send_password_reset_email(mail_options)
 
+    res.send({email_address})
 
-
+  }
+  catch (error) {
+    error_handling(error,res)
+  }
 
 
 }

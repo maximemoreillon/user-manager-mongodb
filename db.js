@@ -11,11 +11,17 @@ const mongoose_options = {
   useUnifiedTopology: true,
 }
 
-const mongodb_url = process.env.MONGODB_URL || 'mongodb://mongo'
-const mongodb_db = process.env.MONGODB_DB || 'user_manager_mongoose'
-const mongoose_connection_string = `${mongodb_url}/${mongodb_db}`
-
 mongoose.set('useCreateIndex', true)
+
+const {
+  MONGODB_URL = 'mongodb://mongo',
+  MONGODB_DB = 'user_manager',
+} = process.env
+
+
+
+const mongoose_connection_string = `${MONGODB_URL}/${MONGODB_DB}`
+
 
 exports.connect = () => {
   console.log('[Mongoose] Attempting initial connection...')
@@ -36,6 +42,6 @@ const db = mongoose.connection
 db.on('error', console.error.bind(console, '[Mongoose] connection error:'))
 db.once('open', () => { console.log('[Mongoose] Connected') })
 
-exports.db = mongodb_db
-exports.url = mongodb_url
+exports.db = MONGODB_URL
+exports.url = MONGODB_DB
 exports.connected = () => mongoose.connection.readyState

@@ -8,5 +8,5 @@ exports.error_handling = (error, res) => {
   let status_code = error.code || 500
   const message = error.message || error
   res.status(status_code).send(message)
-  console.log(message)
+  console.log(error)
 }

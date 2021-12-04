@@ -24,7 +24,7 @@ app.get('/', (req, res) => {
     version,
     author,
     mongodb: {
-      url: db.url || 'Undefined',
+      url: db.url,
       db: db.db,
       connected: db.connected(),
     },

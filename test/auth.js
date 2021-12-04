@@ -2,7 +2,7 @@ const User = require("../models/user.js")
 const request = require("supertest")
 const {expect} = require("chai")
 const {app} = require("../index.js")
-const user_controller = require('../controllers/users.js')
+const {create_admin_account} = require('../controllers/users.js')
 const auth = require('../auth.js')
 
 
@@ -12,7 +12,7 @@ describe("/auth", () => {
   beforeEach( async () => {
     console.log = function () {};
     await User.deleteMany({})
-    await user_controller.create_admin_account()
+    await create_admin_account()
   })
 
   describe("Password checking", () => {

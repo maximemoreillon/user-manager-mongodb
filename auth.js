@@ -78,6 +78,7 @@ exports.login = async (req, res) => {
 
 }
 
+
 exports.get_user_from_jwt = (req, res) => {
   res.status(501).send('not implemented')
 }
