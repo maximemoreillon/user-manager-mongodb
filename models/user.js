@@ -5,7 +5,7 @@ const userSchema = new Schema({
   email_address: {type: String, unique: true, trim: true, sparse: true},
   password_hashed: { type: String, required: true, select: false },
   display_name: String,
-  avatar: String,
+  avatar_src: String,
   locked: Boolean,
   isAdmin: Boolean,
   administrator: Boolean, // LEGACY
