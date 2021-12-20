@@ -234,6 +234,7 @@ exports.create_admin_account = async () => {
       username: admin_username,
       display_name: admin_username,
       isAdmin: true,
+      //administrator: true,
       activated: true,
       password_hashed,
       creation_date: new Date(),
@@ -244,6 +245,24 @@ exports.create_admin_account = async () => {
   } catch (error) {
     if(error.code === 11000) console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
+  }
+
+}
+
+exports.rename_admin_property = async () => {
+
+  try {
+
+
+    const actions = { $rename: { administrator: 'isAdmin' } }
+    const options = {multi: true}
+
+    await User.updateMany({}, actions, options)
+
+    console.log(`[Mongoose] administrator property renamed`)
+
+  } catch (error) {
+    console.log(error)
   }
 
 }

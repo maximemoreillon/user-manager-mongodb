@@ -1,7 +1,10 @@
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 
-const {create_admin_account} = require('./controllers/users.js')
+const {
+  create_admin_account,
+  rename_admin_property
+} = require('./controllers/users.js')
 
 dotenv.config()
 
@@ -29,6 +32,7 @@ exports.connect = () => {
   .then(() => {
     console.log('[Mongoose] Initial connection successful')
     create_admin_account()
+    rename_admin_property()
   })
   .catch(error => {
     console.log('[Mongoose] Initial connection failed')
@@ -42,6 +46,6 @@ const db = mongoose.connection
 db.on('error', console.error.bind(console, '[Mongoose] connection error:'))
 db.once('open', () => { console.log('[Mongoose] Connected') })
 
-exports.db = MONGODB_URL
-exports.url = MONGODB_DB
+exports.db = MONGODB_DB
+exports.url = MONGODB_URL
 exports.connected = () => mongoose.connection.readyState

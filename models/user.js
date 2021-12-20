@@ -8,6 +8,7 @@ const userSchema = new Schema({
   avatar: String,
   locked: Boolean,
   isAdmin: Boolean,
+  administrator: Boolean, // LEGACY
   last_login: Date,
   creation_date: Date,
   activated: {type: Boolean, default: false},
