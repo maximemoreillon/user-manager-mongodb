@@ -14,7 +14,7 @@ const restrict_modifyable_properties = (properties, user) => {
   // Allow users to only modify some properties
   let modifiable_properties = [
     'display_name',
-    'avatar',
+    'avatar_src',
     'activated', // allowing users to activate their own accounts
   ]
 
