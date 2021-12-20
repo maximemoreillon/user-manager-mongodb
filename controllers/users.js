@@ -42,7 +42,7 @@ exports.create_user = async (req, res) => {
     const { username, password, email_address} = req.body
 
     const current_user = res.locals.user
-    const current_user_is_admin = current_user.isAdmin
+    const current_user_is_admin = current_user?.isAdmin
 
     // Those woule be caught by mongoose
     // Email is caught by mongoose

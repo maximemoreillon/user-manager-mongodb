@@ -31,6 +31,7 @@ router.route('/:user_id/password')
   .put(middleware, update_password)
   .patch(middleware, update_password)
 
+// :user_id is not used
 router.route('/:user_id/password/reset')
   .post(password_reset)
 
