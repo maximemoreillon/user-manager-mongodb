@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 const dotenv = require('dotenv')
-const auth = require('./auth.js')
+const { generate_token } = require('./auth.js')
+
 dotenv.config()
 
 // parsing environment
@@ -40,7 +41,7 @@ exports.send_activation_email = async ({url,user}) => {
 
   try {
     const {email_address} = user
-    const token = await auth.generate_token(user)
+    const token = await generate_token(user)
 
     const activation_email = {
       from: SMTP_FROM,
@@ -62,7 +63,7 @@ exports.send_password_reset_email = async ({url,user}) => {
 
   try {
     const {email_address} = user
-    const token = await auth.generate_token(user)
+    const token = await generate_token(user)
 
     const activation_email = {
       from: SMTP_FROM,

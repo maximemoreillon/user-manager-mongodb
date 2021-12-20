@@ -2,7 +2,6 @@ const { Router } = require('express')
 const {
   create_user,
   get_users,
-  get_user_count,
   get_user,
   delete_user,
   update_user,
@@ -20,9 +19,6 @@ const router = Router()
 router.route('/')
   .post(middleware_lax, create_user)
   .get(middleware, admin_only_middlware, get_users)
-
-router.route('/count')
-  .get(middleware, admin_only_middlware, get_user_count)
 
 router.route('/:user_id')
   .get(middleware, get_user)

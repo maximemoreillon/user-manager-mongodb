@@ -5,14 +5,20 @@ const {app} = require("../index.js")
 const {create_admin_account} = require('../controllers/users.js')
 const auth = require('../auth.js')
 
+const sleep = (delay) => new Promise(resolve => setTimeout(resolve,delay))
+
 
 // We will test for api users
 describe("/auth", () => {
 
   beforeEach( async () => {
-    console.log = function () {};
-    await User.deleteMany({})
-    await create_admin_account()
+    //console.log = function () {};
+    // await User.deleteMany({})
+    // await create_admin_account()
+    
+    await sleep(1000) // wait for admin to be created
+
+
   })
 
   describe("Password checking", () => {

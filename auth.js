@@ -59,7 +59,7 @@ exports.login = async (req, res) => {
     if(!user) throw {code: 403, message: `User ${username} not found`}
 
     // Prevent deactivated users from loggign in
-    if(!user.activated && !user.administrator) throw {code: 403, message: `User ${username} is not activated`}
+    if(!user.activated && !user.isAdmin) throw {code: 403, message: `User ${username} is not activated`}
 
     const password_correct = await check_password(password, user.password_hashed)
 
@@ -126,7 +126,7 @@ exports.middleware_lax = async (req, res, next) => {
 
 exports.admin_only_middlware = (req, res, next) => {
 
-  if(!res.locals.user?.administrator) {
+  if(!res.locals.user?.isAdmin) {
     const message = `This resource is only available to administrators`
     console.log(`[Auth] ${message}`)
     res.status(403).send(message)

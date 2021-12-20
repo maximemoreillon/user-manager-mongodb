@@ -18,9 +18,9 @@ const restrict_modifyable_properties = (properties, user) => {
     'activated', // allowing users to activate their own accounts
   ]
 
-  if(user.administrator){
+  if(user.isAdmin){
     modifiable_properties = modifiable_properties.concat([
-      'administrator',
+      'isAdmin',
       'locked',
       'email_address',
       'username',
@@ -41,15 +41,18 @@ exports.create_user = async (req, res) => {
     // Todo: validation with joy
     const { username, password, email_address} = req.body
 
+    const current_user = res.locals.user
+    const current_user_is_admin = current_user.isAdmin
+
     // Those woule be caught by mongoose
     // Email is caught by mongoose
     if(!username) throw {code: 400, message: `Username not defined`}
     if(!password) throw {code: 400, message: `Password not defined`}
 
     // Email activation only necessary if user registers himself
-    const activated = res.locals.user?.administrator ? true : false
+    const activated = current_user_is_admin ? true : false
 
-    if(!process.env.ALLOW_REGISTRATION && !res.locals.user?.administrator) {
+    if(!process.env.ALLOW_REGISTRATION && !current_user_is_admin) {
       throw {code: 404, message: `Registration is not allowed unless administrator`}
     }
 
@@ -89,7 +92,7 @@ exports.delete_user = async (req, res) => {
     if(user_id === 'self') user_id = user._id
     if(!user_id) throw {code: 400, message: `User ID not defined`}
 
-    if(user._id.toString() !== user_id.toString() && !user.administrator) {
+    if(user._id.toString() !== user_id.toString() && !user.isAdmin) {
       throw {code: 403, message: `Not allowed to delete another user`}
     }
 
@@ -115,7 +118,7 @@ exports.update_user = async (req, res) => {
     if(user_id === 'self') user_id = user._id
     if(!user_id) return res.status(400).send(`User ID not defined`)
 
-    if(user._id.toString() !== user_id.toString() && !user.administrator) {
+    if(user._id.toString() !== user_id.toString() && !user.isAdmin) {
       throw {code: 403, message: `Not allowed to update another user`}
     }
 
@@ -166,7 +169,7 @@ exports.update_password = async (req, res) => {
     let user_id = req.params.user_id
     if(user_id === 'self') user_id = current_user._id
 
-    if(String(user_id) !== String(current_user._id) && !current_user.administrator) {
+    if(String(user_id) !== String(current_user._id) && !current_user.isAdmin) {
       throw {code: 400, message: `Unauthorized to modify another user's password`}
     }
 
@@ -196,13 +199,16 @@ exports.get_users = async (req, res) => {
       query['$or'] = req.query.ids.map(_id => ({_id}) )
     }
 
+    const count = await User.countDocuments({})
+
     const users = await User.find(query)
       .skip(Number(req.query.skip || 0))
       .limit(Number(req.query.limit || 0))
 
-    res.send(users)
     console.log(`[Mongoose] Users queried`)
 
+    res.send({users, count})
+
   }
   catch (error) {
     error_handling(error,res)
@@ -210,25 +216,13 @@ exports.get_users = async (req, res) => {
 
 }
 
-exports.get_user_count = async (req, res) => {
 
-  // this should be combined with the above
-
-  try {
-    const user_count = await User.countDocuments({})
-    res.send({user_count})
-    console.log(`[Mongoose] User count queried`)
-  }
-  catch (error) {
-    error_handling(error,res)
-  }
-}
 
 exports.create_admin_account = async () => {
 
-  // destructuring with default values
   try {
 
+    // destructuring with default values
     const {
       ADMIN_USERNAME: admin_username = 'admin',
       ADMIN_PASSWORD: admin_password = 'admin'
@@ -239,7 +233,7 @@ exports.create_admin_account = async () => {
     const admin = await User.create({
       username: admin_username,
       display_name: admin_username,
-      administrator: true,
+      isAdmin: true,
       activated: true,
       password_hashed,
       creation_date: new Date(),
@@ -256,6 +250,7 @@ exports.create_admin_account = async () => {
 
 
 exports.password_reset = async (req, res) => {
+
   try {
     const {email_address} = req.body
     if(!email_address) throw {code: 400, message: `Missing email_address`}
