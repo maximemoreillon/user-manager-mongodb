@@ -70,7 +70,7 @@ describe("/users", () => {
         .send({username: 'test_user', password: 'banana'})
         .set('Authorization', `Bearer ${jwt}`)
 
-      expect(res.status).to.equal(400)
+      expect(res.status).to.not.equal(200)
     })
 
     // it("Should allow user registration", async () => {
@@ -149,8 +149,8 @@ describe("/users", () => {
       const {status} = await request(app)
         .put(`/users/${new_user_id}/password`)
         .send({
-          new_password: 'apple',
-          new_password_confirm: 'apple',
+          new_password: 'apricot',
+          new_password_confirm: 'apricot',
         })
         .set('Authorization', `Bearer ${jwt}`)
 
