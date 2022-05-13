@@ -56,7 +56,7 @@ exports.login = async (req, res, next) => {
     const user = await User.findOne(query)
       .select('+password_hashed')
 
-    if (!user) throw createHttpError(404, `User ${username} not found`) 
+    if (!user) throw createHttpError(403, `User ${username} does not exist`) 
 
     // Prevent deactivated users from loggign in
     if (!user.activated && !user.isAdmin) throw createHttpError(403, `User ${username} is not activated`)
