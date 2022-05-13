@@ -44,6 +44,15 @@ app.listen(EXPRESS_PORT, () => {
   console.log(`[Express] App listening on ${EXPRESS_PORT}`)
 })
 
+// Express error handler
+app.use((error, req, res, next) => {
+  console.error(error)
+  let { statusCode = 500, message = error } = error
+  if (isNaN(statusCode) || statusCode > 600) statusCode = 500
+  res.status(statusCode).send(message)
+})
+
+
 // exporting app for tests
 exports.app = app
 
