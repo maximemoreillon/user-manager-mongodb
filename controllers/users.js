@@ -2,7 +2,7 @@ const createHttpError = require('http-errors')
 const dotenv = require('dotenv')
 const User = require('../models/user.js')
 const { hash_password } = require('../auth.js')
-const { passwordUpdateSchema } = require('../../schemas/passwords.js')
+const { passwordUpdateSchema } = require('../schemas/password.js')
 const {
   send_activation_email,
   send_password_reset_email,
@@ -11,7 +11,7 @@ const {
   newUserSchema,
   userUpdateSchema,
   userAdminUpdateSchema
-} = require('../../schemas/user.js')
+} = require('../schemas/user.js')
 
 dotenv.config()
 
