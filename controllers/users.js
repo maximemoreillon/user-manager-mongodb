@@ -106,7 +106,7 @@ exports.update_user = async (req, res, next) => {
     if (!user_id) throw createHttpError(400, `User ID not defined`)
 
     if(user._id.toString() !== user_id.toString() && !user.isAdmin) {
-      throw {code: 403, message: `Not allowed to update another user`}
+      throw createHttpError(403, `Not allowed to update another user`)
     }
 
     try {
