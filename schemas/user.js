@@ -17,7 +17,7 @@ const newUserSchema = Joi.object({
   email_address: Joi.string()
     .email({ })
     .allow(null, '')
-    .required()
+    // .required()
 })
 
 const user_update = {
