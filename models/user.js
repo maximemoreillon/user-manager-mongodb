@@ -6,7 +6,6 @@ const userSchema = new Schema({
   password_hashed: { type: String, required: true, select: false },
   display_name: String,
   avatar_src: String,
-  locked: Boolean,
   isAdmin: Boolean,
   administrator: Boolean, // LEGACY
   last_login: Date,
