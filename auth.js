@@ -35,7 +35,6 @@ const decode_token = (token) => new Promise( (resolve, reject) => {
   jwt.verify(token, JWT_SECRET, (error, decoded_token) => {
     if (error) return reject(createHttpError(403, `Invalid JWT`))
     resolve(decoded_token)
-    console.log(`[Auth] Token decoded successfully`)
   })
 })
 

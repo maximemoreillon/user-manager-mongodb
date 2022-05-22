@@ -193,18 +193,23 @@ exports.get_users = async (req, res, next) => {
     const {
       skip = 0,
       limit = 50,
+      sort = '_id',
+      order = 1,
     } = req.query
+
+    const sort_and_order = {}
+    sort_and_order[sort] = order
 
     // A list of user IDs can be passed as filter
     let query = {}
-    if(req.query.ids){
-      query['$or'] = req.query.ids.map(_id => ({_id}) )
-    }
+    if(req.query.ids) query['$or'] = req.query.ids.map(_id => ({_id}) )
 
     const count = await User.countDocuments({})
 
-    const users = await User.find(query)
+    const users = await User
+      .find(query)
       .skip(Number(skip))
+      .sort(sort_and_order)
       .limit(Number(limit))
 
     console.log(`[Mongoose] Users queried`)
