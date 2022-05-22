@@ -59,6 +59,7 @@ exports.login = async (req, res, next) => {
 
     // Prevent deactivated users from loggign in
     if (!user.activated && !user.isAdmin) throw createHttpError(403, `User ${username} is not activated`)
+    if (user.locked && !user.isAdmin) throw createHttpError(403, `Account ${username} is locked`)
 
     const password_correct = await check_password(password, user.password_hashed)
 
