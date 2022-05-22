@@ -195,16 +195,24 @@ exports.get_users = async (req, res, next) => {
       limit = 50,
       sort = '_id',
       order = 1,
+      ids,
+      search,
     } = req.query
 
     const sort_and_order = {}
     sort_and_order[sort] = order
 
-    // A list of user IDs can be passed as filter
     let query = {}
-    if(req.query.ids) query['$or'] = req.query.ids.map(_id => ({_id}) )
+    if (search) {
+      const searched_fields = ['username', 'email_address', 'display_name']
+      query['$or'] = searched_fields.map((item) => ({ [item]: { $regex: search, $options: 'i' } }))
+    }
 
-    const count = await User.countDocuments({})
+    // A list of user IDs can be passed as filter
+    if (ids) query['$or'] = ids.map(_id => ({_id}) )
+    
+
+    const count = await User.countDocuments(query)
 
     const users = await User
       .find(query)
