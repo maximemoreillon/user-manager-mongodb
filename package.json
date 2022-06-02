@@ -4,6 +4,7 @@
   "description": "A simple user management and authentication system",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon",
     "test": "mocha --timeout 10000 --exit",
     "coverage": "nyc mocha --timeout 15000 --exit"
   },
@@ -20,11 +21,14 @@
     "joi": "^17.6.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.14",
-    "nodemailer": "^6.7.5"
+    "nodemailer": "^6.7.5",
+    "prom-client": "^14.0.1",
+    "prometheus-api-metrics": "^3.2.1"
   },
   "devDependencies": {
     "chai": "^4.3.6",
     "mocha": "^8.3.2",
+    "nodemon": "^2.0.16",
     "nyc": "^15.1.0",
     "supertest": "^6.2.3"
   }
