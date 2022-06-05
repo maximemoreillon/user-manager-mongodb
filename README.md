@@ -8,7 +8,10 @@
 [![dockeri.co](https://dockeri.co/image/moreillon/user-manager-mongoose)](https://hub.docker.com/r/moreillon/user-manager-mongoose)
 
 
-A user management and authentication microservice built around Mongoose
+A user management and authentication microservice.
+
+User data is stored in a MongoDB database and accessed using Mongoose.
+Interaction with user records is achieved via a REST API, built using Express.
 
 For more information, see this [Medium article](https://moreillon.medium.com/a-pluggable-user-management-and-authentication-service-for-web-applications-a6f23ae5816b)
 
