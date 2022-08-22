@@ -25,8 +25,7 @@ const {
 
 const mongoose_connection_string = `${MONGODB_URL}/${MONGODB_DB}`
 
-
-exports.connect = () => {
+const connect = () => {
   console.log('[Mongoose] Attempting initial connection...')
   mongoose.connect(mongoose_connection_string, mongoose_options)
   .then(() => {
@@ -36,7 +35,7 @@ exports.connect = () => {
   })
   .catch(error => {
     console.log('[Mongoose] Initial connection failed')
-    setTimeout(mongoose_connect,5000)
+    setTimeout(connect,5000)
   })
 }
 
@@ -48,4 +47,5 @@ db.once('open', () => { console.log('[Mongoose] Connected') })
 
 exports.db = MONGODB_DB
 exports.url = MONGODB_URL
+exports.connect = connect
 exports.connected = () => mongoose.connection.readyState
