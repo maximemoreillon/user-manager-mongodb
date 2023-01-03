@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+  mongo:
+    image: mongo
+    logging:
+      driver: none
+    #volumes:
+    #  - mongo-data:/data/db
+    networks:
+      - user-manager
+
+  user-manager-back:
+    image: moreillon/user-manager-mongoose
+    environment:
+      MONGODB_URL: mongodb://mongo
+      JWT_SECRET: keyboard_cat
+    networks:
+      - user-manager
+    ports:
+      - 6060:80
+
+  user-manager-front:
+    image: moreillon/user-manager-front
+    logging:
+      driver: none
+    environment:
+      VUE_APP_USER_MANAGER_API_URL: /proxy/api
+    networks:
+      - user-manager
+
+  proxy:
+    image: moreillon/api-proxy
+    environment:
+      PROXY_API: http://user-manager-back
+      PROXY_ROOT: http://user-manager-front
+    ports:
+      - 6061:80
+    networks:
+      - user-manager
+
+#volumes:
+#  mongo-data:
+
+networks:
+  user-manager:
