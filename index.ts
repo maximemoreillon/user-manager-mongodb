@@ -1,3 +1,4 @@
+import "express-async-errors"
 import express from "express"
 import { Request, Response, NextFunction } from "express"
 import cors from "cors"
@@ -13,7 +14,6 @@ import {
 import * as mail from "./mail"
 import auth_router from "./routes/auth"
 import users_router from "./routes/users"
-import "express-async-errors"
 
 dotenv.config()
 
