@@ -20,6 +20,8 @@ services:
 
 build:
   stage: build
+  only:
+    - master
   tags:
     - dind
   before_script:
@@ -31,6 +33,8 @@ build:
 
 test:
   stage: test
+  only:
+    - master
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   tags:
     - dind
