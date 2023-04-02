@@ -1,27 +1,25 @@
-const createHttpError = require("http-errors")
-const dotenv = require("dotenv")
-const User = require("../models/user.js")
-const { hash_password } = require("../auth.js")
-const { passwordUpdateSchema } = require("../schemas/password.js")
-const {
-  send_activation_email,
-  send_password_reset_email,
-} = require("../mail.js")
-const {
+import createHttpError from "http-errors"
+import dotenv from "dotenv"
+import User from "../models/user"
+import { hash_password } from "../auth"
+import { passwordUpdateSchema } from "../schemas/password"
+import { send_activation_email, send_password_reset_email } from "../mail"
+import {
   newUserSchema,
   userUpdateSchema,
   userAdminUpdateSchema,
-} = require("../schemas/user.js")
+} from "../schemas/user"
+import { Request, Response } from "express"
 
 dotenv.config()
 
-exports.create_user = async (req, res) => {
+export const create_user = async (req: Request, res: Response) => {
   const properties = req.body
 
   try {
     await newUserSchema.validateAsync(properties)
   } catch (error) {
-    throw createHttpError(400, error)
+    throw createHttpError(400, error as any)
   }
 
   const { username, password, email_address } = properties
@@ -58,7 +56,7 @@ exports.create_user = async (req, res) => {
   console.log(`[Mongoose] User ${user._id} created`)
 }
 
-exports.delete_user = async (req, res) => {
+export const delete_user = async (req: Request, res: Response) => {
   const { user } = res.locals
   let { user_id } = req.params
 
@@ -76,7 +74,7 @@ exports.delete_user = async (req, res) => {
   console.log(`[Mongoose] User ${user_id} deleted`)
 }
 
-exports.update_user = async (req, res) => {
+export const update_user = async (req: Request, res: Response) => {
   const { user } = res.locals
   let { user_id } = req.params
   const properties = req.body
@@ -92,7 +90,7 @@ exports.update_user = async (req, res) => {
     if (user.isAdmin) await userAdminUpdateSchema.validateAsync(properties)
     else await userUpdateSchema.validateAsync(properties)
   } catch (error) {
-    throw createHttpError(403, error)
+    throw createHttpError(403, error as any)
   }
 
   const result = await User.updateOne({ _id: user_id }, properties)
@@ -101,7 +99,7 @@ exports.update_user = async (req, res) => {
   res.send(result)
 }
 
-exports.get_user = async (req, res) => {
+export const get_user = async (req: Request, res: Response) => {
   // Get user ID from query
   let { user_id } = req.params
 
@@ -114,11 +112,11 @@ exports.get_user = async (req, res) => {
   console.log(`[Mongoose] User ${user._id} queried`)
 }
 
-exports.update_password = async (req, res) => {
+export const update_password = async (req: Request, res: Response) => {
   try {
     await passwordUpdateSchema.validateAsync(req.body)
   } catch (error) {
-    throw createHttpError(400, error.message)
+    throw createHttpError(400, error as any)
   }
 
   const { new_password, new_password_confirm } = req.body
@@ -140,7 +138,7 @@ exports.update_password = async (req, res) => {
   res.send(result)
 }
 
-exports.get_users = async (req, res) => {
+export const get_users = async (req: Request, res: Response) => {
   // TODO: filters
   const {
     skip = 0,
@@ -149,12 +147,9 @@ exports.get_users = async (req, res) => {
     order = 1,
     ids,
     search,
-  } = req.query
+  } = req.query as any
 
-  const sort_and_order = {}
-  sort_and_order[sort] = order
-
-  let query = {}
+  let query: any = {}
   if (search) {
     const searched_fields = ["username", "email_address", "display_name"]
     query["$or"] = searched_fields.map((item) => ({
@@ -163,13 +158,13 @@ exports.get_users = async (req, res) => {
   }
 
   // A list of user IDs can be passed as filter
-  if (ids) query["$or"] = ids.map((_id) => ({ _id }))
+  if (ids) query["$or"] = ids.map((_id: string) => ({ _id }))
 
   const count = await User.countDocuments(query)
 
   const users = await User.find(query)
     .skip(Number(skip))
-    .sort(sort_and_order)
+    .sort({ [sort]: order })
     .limit(Number(limit))
 
   console.log(`[Mongoose] Users queried`)
@@ -177,7 +172,7 @@ exports.get_users = async (req, res) => {
   res.send({ users, count })
 }
 
-exports.password_reset = async (req, res) => {
+export const password_reset = async (req: Request, res: Response) => {
   const { email_address } = req.body
   if (!email_address) throw createHttpError(400, `Missing email_address`)
   const user = await User.findOne({ email_address })
@@ -193,7 +188,7 @@ exports.password_reset = async (req, res) => {
   res.send({ email_address })
 }
 
-exports.create_admin_account = async () => {
+export const create_admin_account = async () => {
   const {
     ADMIN_USERNAME: admin_username = "admin",
     ADMIN_PASSWORD: admin_password = "admin",
@@ -211,14 +206,14 @@ exports.create_admin_account = async () => {
     })
 
     console.log(`[Mongoose] Admin account created`)
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === 11000)
       console.log(`[Mongoose] Admin account already exists`)
     else console.log(error)
   }
 }
 
-exports.rename_admin_property = async () => {
+export const rename_admin_property = async () => {
   // Used to rename field 'administrator' into 'isAdmin'
   // For compatibility with Neo4J version
 
