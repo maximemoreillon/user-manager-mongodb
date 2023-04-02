@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "nodemon index.ts",
     "start": "ts-node index.ts",
-    "test": "mocha -r ts-node/register test/*.test.ts --timeout 10000 --exit",
-    "coverage": "nyc mocha -r ts-node/register test/*.test.ts --timeout 15000 --exit"
+    "test": "mocha -r ts-node/register test/*.ts --timeout 10000 --exit",
+    "coverage": "nyc mocha -r ts-node/register test/*.ts --timeout 15000 --exit"
   },
   "author": "Maxime MOREILLON",
   "license": "ISC",
