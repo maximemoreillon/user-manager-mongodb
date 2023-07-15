@@ -41,7 +41,6 @@ test:
     - dind
   before_script:
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
-    # Creating network for TDD
     - docker network create ${TEST_NETWORK}
     # Creating DB container in network
     - >
@@ -53,7 +52,6 @@ test:
       --hostname ${TEST_DB}
       mongo:4
   script:
-    # Run test
     - >
       docker run
       --rm
@@ -75,9 +73,7 @@ release:
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
   script:
     - docker pull ${CONTAINER_IMAGE_TEST}
-    # Tagging
     - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_TAGGED}
     - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_LATEST}
-    # Pushing
     - docker push ${CONTAINER_IMAGE_TAGGED}
     - docker push ${CONTAINER_IMAGE_LATEST}
