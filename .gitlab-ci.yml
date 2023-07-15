@@ -1,6 +1,11 @@
 stages:
   - build
   - test
+  - release
+
+image: moreillon/ci-dind
+services:
+  - name: docker:19.03.12-dind
 
 variables:
   APPLICATION_NAME: user-manager-mongoose
@@ -13,19 +18,14 @@ variables:
   TEST_NETWORK: tdd
   TEST_DB: tdd-db
 
-# Needed for Docker in docker build
-image: moreillon/ci-dind
-services:
-  - name: docker:19.03.12-dind
-
 build:
   stage: build
   only:
     - master
+    - tags
   tags:
     - dind
   before_script:
-    # Docker hub login
     - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
   script:
     - docker build -t ${CONTAINER_IMAGE_TEST} .
@@ -35,6 +35,7 @@ test:
   stage: test
   only:
     - master
+    - tags
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   tags:
     - dind
@@ -63,6 +64,17 @@ test:
       -e JWT_SECRET=keyboardcat
       ${CONTAINER_IMAGE_TEST}
       npm run coverage
+
+release:
+  stage: release
+  tags:
+    - dind
+  only:
+    - tags
+  before_script:
+    - echo "${DOCKER_HUB_PASSWORD}" | docker login --username ${DOCKER_HUB_USERNAME} --password-stdin
+  script:
+    - docker pull ${CONTAINER_IMAGE_TEST}
     # Tagging
     - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_TAGGED}
     - docker tag ${CONTAINER_IMAGE_TEST} ${CONTAINER_IMAGE_LATEST}
