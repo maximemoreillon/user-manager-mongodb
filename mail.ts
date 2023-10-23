@@ -1,8 +1,5 @@
 import nodemailer from "nodemailer"
-import dotenv from "dotenv"
 import { generate_token } from "./auth"
-
-dotenv.config()
 
 // parsing environment
 const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM } =

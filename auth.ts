@@ -4,6 +4,7 @@ import createHttpError from "http-errors"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import { Request, Response, NextFunction } from "express"
+import { getUserFromCache, setUserInCache, removeUserFromCache } from "./cache"
 
 // aliases for bcrypt functions
 export const hash_password = (password_plain: string) =>
@@ -74,10 +75,10 @@ export const login = async (req: Request, res: Response) => {
   await user.save()
 
   const jwt = await generate_token(user)
+  console.log(`[Auth] Successful login for user ${user._id}`)
+  removeUserFromCache(user._id)
 
   res.send({ jwt })
-
-  console.log(`[Auth] Successful login for user ${user._id}`)
 }
 
 export const get_user_from_jwt = (
@@ -96,9 +97,19 @@ export const middleware = async (
   try {
     const token = retrieve_jwt(req, res) as string
     if (!token) throw `Missing JWT`
+
     const { user_id } = (await decode_token(token)) as { user_id: string }
 
-    const user = await User.findOne({ _id: user_id }).select("+password_hashed")
+    let user: any = await getUserFromCache(user_id)
+    if (user) {
+      res.locals.user = user
+      next()
+      return
+    }
+
+    user = await User.findOne({ _id: user_id }).select("+password_hashed")
+    user.cached = false
+    await setUserInCache(user)
 
     res.locals.user = user
 

@@ -1,12 +1,9 @@
 import mongoose from "mongoose"
-import dotenv from "dotenv"
 
 import {
   create_admin_account,
   rename_admin_property,
 } from "./controllers/users"
-
-dotenv.config()
 
 // Mongoose connection
 const mongoose_options = {

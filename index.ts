@@ -1,8 +1,9 @@
-import "express-async-errors"
+import dotenv from "dotenv"
+dotenv.config()
 import express from "express"
+import "express-async-errors"
 import { Request, Response, NextFunction } from "express"
 import cors from "cors"
-import dotenv from "dotenv"
 import apiMetrics from "prometheus-api-metrics"
 import { version, author } from "./package.json"
 import {
@@ -11,11 +12,10 @@ import {
   connected as dbConnedted,
   connect as dbConnect,
 } from "./db"
+import { REDIS_URL } from "./cache"
 import * as mail from "./mail"
 import auth_router from "./routes/auth"
 import users_router from "./routes/users"
-
-dotenv.config()
 
 const { EXPRESS_PORT = 80, ALLOW_REGISTRATION } = process.env
 
@@ -41,6 +41,9 @@ app.get("/", (req, res) => {
     smtp: {
       host: mail.options.host || "undefined",
       port: mail.options.port || "undefined",
+    },
+    redis: {
+      url: REDIS_URL || "undefined",
     },
   })
 })
