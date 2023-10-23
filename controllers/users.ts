@@ -97,15 +97,12 @@ export const get_user = async (req: Request, res: Response) => {
   if (!user_id) throw createHttpError(400, `User ID not defined`)
 
   let user = await getUserFromCache(user_id)
-  if (user) {
-    delete user.password_hashed
-    return res.send(user)
+  if (!user) {
+    user = await User.findById(user_id).select("+password_hashed")
+    if (!user) throw createHttpError(404, `User ${user_id} not found`)
+    setUserInCache(user)
   }
 
-  user = await User.findById(user_id)
-  if (!user) throw createHttpError(404, `User ${user_id} not found`)
-  setUserInCache(user)
-  user.cached = false
   delete user.password_hashed
   res.send(user)
 }

@@ -101,15 +101,12 @@ export const middleware = async (
     const { user_id } = (await decode_token(token)) as { user_id: string }
 
     let user: any = await getUserFromCache(user_id)
-    if (user) {
-      res.locals.user = user
-      next()
-      return
+    if (!user) {
+      console.log("USER WAS NOT CACHED")
+      user = await User.findOne({ _id: user_id }).select("+password_hashed")
+      if (!user) throw `User ${user_id} not found`
+      await setUserInCache(user)
     }
-
-    user = await User.findOne({ _id: user_id }).select("+password_hashed")
-    user.cached = false
-    await setUserInCache(user)
 
     res.locals.user = user
 

@@ -12,7 +12,7 @@ import {
   connected as dbConnedted,
   connect as dbConnect,
 } from "./db"
-import { REDIS_URL } from "./cache"
+import { REDIS_URL, init as cacheInit } from "./cache"
 import * as mail from "./mail"
 import auth_router from "./routes/auth"
 import users_router from "./routes/users"
@@ -20,6 +20,7 @@ import users_router from "./routes/users"
 const { EXPRESS_PORT = 80, ALLOW_REGISTRATION } = process.env
 
 dbConnect()
+cacheInit()
 
 export const app = express()
 
