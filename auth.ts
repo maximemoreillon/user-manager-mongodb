@@ -105,7 +105,7 @@ export const middleware = async (
       console.log("USER WAS NOT CACHED")
       user = await User.findOne({ _id: user_id }).select("+password_hashed")
       if (!user) throw `User ${user_id} not found`
-      await setUserInCache(user)
+      setUserInCache(user)
     }
 
     res.locals.user = user
