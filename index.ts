@@ -1,10 +1,9 @@
 import dotenv from "dotenv"
 dotenv.config()
-import express from "express"
+import express, { Request, Response, NextFunction } from "express"
 import "express-async-errors"
-import { Request, Response, NextFunction } from "express"
 import cors from "cors"
-import apiMetrics from "prometheus-api-metrics"
+import promBundle from "express-prom-bundle"
 import { version, author } from "./package.json"
 import {
   MONGODB_URL,
@@ -18,6 +17,7 @@ import auth_router from "./routes/auth"
 import users_router from "./routes/users"
 
 const { EXPRESS_PORT = 80, ALLOW_REGISTRATION } = process.env
+const promOptions = { includeMethod: true, includePath: true }
 
 dbConnect()
 cacheInit()
@@ -26,8 +26,7 @@ export const app = express()
 
 app.use(express.json())
 app.use(cors())
-app.use(apiMetrics())
-
+app.use(promBundle(promOptions))
 app.get("/", (req, res) => {
   res.send({
     application_name: "User manager (Mongoose version)",
