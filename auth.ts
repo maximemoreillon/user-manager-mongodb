@@ -29,7 +29,6 @@ export const generate_token = (user: any) =>
     if (!JWT_SECRET) return reject(createHttpError(500, `Token secret not set`))
     const {_id: user_id, token_id} = user
     const token_content = { user_id, token_id }
-    console.log({token_content})
     jwt.sign(token_content, JWT_SECRET, (error: any, token: any) => {
       if (error) return reject(createHttpError(500, error))
       resolve(token)
