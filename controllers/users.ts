@@ -1,5 +1,4 @@
 import createHttpError from "http-errors"
-import dotenv from "dotenv"
 import User from "../models/user"
 import { hash_password } from "../auth"
 import { passwordUpdateSchema } from "../schemas/password"
@@ -12,7 +11,6 @@ import {
 import { Request, Response } from "express"
 import { getUserFromCache, setUserInCache, removeUserFromCache } from "../cache"
 
-dotenv.config()
 
 export const create_user = async (req: Request, res: Response) => {
   const properties = req.body

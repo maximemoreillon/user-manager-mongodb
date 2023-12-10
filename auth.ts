@@ -27,7 +27,9 @@ export const generate_token = (user: any) =>
   new Promise((resolve, reject) => {
     const { JWT_SECRET } = process.env
     if (!JWT_SECRET) return reject(createHttpError(500, `Token secret not set`))
-    const token_content = { user_id: user._id }
+    const {_id: user_id, token_id} = user
+    const token_content = { user_id, token_id }
+    console.log({token_content})
     jwt.sign(token_content, JWT_SECRET, (error: any, token: any) => {
       if (error) return reject(createHttpError(500, error))
       resolve(token)
@@ -98,7 +100,7 @@ export const middleware = async (
     const token = retrieve_jwt(req, res) as string
     if (!token) throw `Missing JWT`
 
-    const { user_id } = (await decode_token(token)) as { user_id: string }
+    const { user_id, token_id: tokenIdFromJwt} = (await decode_token(token)) as { user_id: string, token_id: string}
 
     let user: any = await getUserFromCache(user_id)
     if (!user) {
@@ -107,6 +109,10 @@ export const middleware = async (
       if (!user) throw `User ${user_id} not found`
       setUserInCache(user)
     }
+
+    const {token_id: tokenIfFromUser} = user
+
+    if(tokenIdFromJwt !== tokenIfFromUser) throw `Token revoked`
 
     res.locals.user = user
 

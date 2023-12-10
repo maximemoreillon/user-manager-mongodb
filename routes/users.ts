@@ -9,6 +9,7 @@ import {
   password_reset,
 } from "../controllers/users"
 import { middleware_lax, admin_only_middlware, middleware } from "../auth"
+import { revokeToken } from "../controllers/tokens"
 
 const router = Router()
 
@@ -32,5 +33,10 @@ router
 
 // :user_id is not used
 router.route("/:user_id/password/reset").post(password_reset)
+
+router
+  .route("/:user_id/token")
+  .put(middleware, revokeToken)
+  .delete(middleware, revokeToken)
 
 export default router

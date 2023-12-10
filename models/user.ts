@@ -12,6 +12,8 @@ const userSchema = new Schema({
   activated: { type: Boolean, default: false },
   locked: { type: Boolean, default: false },
 
+  token_id: {type: String},
+
   // Legacy
   administrator: Boolean,
 })
