@@ -14,8 +14,10 @@ export const check_password = (
   password_hashed: string
 ) => bcrypt.compare(password_plain, password_hashed)
 
-const retrieve_jwt = (req: Request, res: Response) => {
+export const retrieve_jwt = (req: Request, res: Response) => {
   return (
+    req.body?.jwt ||
+    req.body?.token ||
     req.headers.authorization?.split(" ")[1] ||
     new Cookies(req, res).get("jwt") ||
     req.query.jwt ||
@@ -27,7 +29,7 @@ export const generate_token = (user: any) =>
   new Promise((resolve, reject) => {
     const { JWT_SECRET } = process.env
     if (!JWT_SECRET) return reject(createHttpError(500, `Token secret not set`))
-    const {_id: user_id, token_id} = user
+    const { _id: user_id, token_id } = user
     const token_content = { user_id, token_id }
     jwt.sign(token_content, JWT_SECRET, (error: any, token: any) => {
       if (error) return reject(createHttpError(500, error))
@@ -99,7 +101,9 @@ export const middleware = async (
     const token = retrieve_jwt(req, res) as string
     if (!token) throw `Missing JWT`
 
-    const { user_id, token_id: tokenIdFromJwt} = (await decode_token(token)) as { user_id: string, token_id: string}
+    const { user_id, token_id: tokenIdFromJwt } = (await decode_token(
+      token
+    )) as { user_id: string; token_id: string }
 
     let user: any = await getUserFromCache(user_id)
     if (!user) {
@@ -108,9 +112,9 @@ export const middleware = async (
       setUserInCache(user)
     }
 
-    const {token_id: tokenIfFromUser} = user
+    const { token_id: tokenIfFromUser } = user
 
-    if(tokenIdFromJwt !== tokenIfFromUser) throw `Token revoked`
+    if (tokenIdFromJwt !== tokenIfFromUser) throw `Token revoked`
 
     res.locals.user = user
 

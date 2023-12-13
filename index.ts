@@ -1,22 +1,17 @@
 import dotenv from "dotenv"
 dotenv.config()
+import { version } from "./package.json"
+console.log(`User manager v${version}`)
 import express, { Request, Response, NextFunction } from "express"
 import "express-async-errors"
 import cors from "cors"
 import promBundle from "express-prom-bundle"
-import { version, author } from "./package.json"
-import {
-  MONGODB_URL,
-  MONGODB_DB,
-  connected as dbConnedted,
-  connect as dbConnect,
-} from "./db"
-import { REDIS_URL, init as cacheInit } from "./cache"
-import * as mail from "./mail"
-import auth_router from "./routes/auth"
-import users_router from "./routes/users"
+import { connect as dbConnect } from "./db"
+import { init as cacheInit } from "./cache"
 
-const { EXPRESS_PORT = 80, ALLOW_REGISTRATION } = process.env
+import router from "./routes/"
+
+const { EXPRESS_PORT = 80 } = process.env
 const promOptions = { includeMethod: true, includePath: true }
 
 dbConnect()
@@ -27,29 +22,7 @@ export const app = express()
 app.use(express.json())
 app.use(cors())
 app.use(promBundle(promOptions))
-app.get("/", (req, res) => {
-  res.send({
-    application_name: "User manager (Mongoose version)",
-    version,
-    author,
-    mongodb: {
-      url: MONGODB_URL,
-      db: MONGODB_DB,
-      connected: dbConnedted(),
-    },
-    registration_allowed: ALLOW_REGISTRATION || false,
-    smtp: {
-      host: mail.options.host || "undefined",
-      port: mail.options.port || "undefined",
-    },
-    redis: {
-      url: REDIS_URL || "undefined",
-    },
-  })
-})
-
-app.use("/auth", auth_router)
-app.use("/users", users_router)
+app.use("/", router)
 
 app.listen(EXPRESS_PORT, () => {
   console.log(`[Express] App listening on ${EXPRESS_PORT}`)

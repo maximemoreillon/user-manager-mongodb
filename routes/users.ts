@@ -25,7 +25,6 @@ router
   .put(middleware, update_user)
   .patch(middleware, update_user)
 
-// middleware lax here because reset using token
 router
   .route("/:user_id/password")
   .put(middleware, update_password)
