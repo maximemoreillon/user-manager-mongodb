@@ -1,14 +1,11 @@
 import { Router } from "express"
 import { version, author } from "../package.json"
-import {
-  MONGODB_URL,
-  MONGODB_DB,
-  connected as dbConnedted,
-} from "../db"
+import { MONGODB_URL, MONGODB_DB, connected as dbConnedted } from "../db"
 import { REDIS_URL } from "../cache"
 import * as mail from "../mail"
 import auth_router from "./auth"
 import users_router from "./users"
+import { decodeToken } from "../controllers/tokens"
 
 const { ALLOW_REGISTRATION } = process.env
 
@@ -37,5 +34,6 @@ router.get("/", (req, res) => {
 
 router.use("/auth", auth_router)
 router.use("/users", users_router)
+router.route("/token").post(decodeToken)
 
 export default router
