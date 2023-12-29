@@ -4,6 +4,8 @@ import { version } from "./package.json"
 console.log(`User manager v${version}`)
 import express, { Request, Response, NextFunction } from "express"
 import "express-async-errors"
+import swaggerUi from "swagger-ui-express"
+import swaggerDocument from "./swagger-output.json"
 import cors from "cors"
 import promBundle from "express-prom-bundle"
 import { connect as dbConnect } from "./db"
@@ -22,6 +24,7 @@ export const app = express()
 app.use(express.json())
 app.use(cors())
 app.use(promBundle(promOptions))
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use("/", router)
 
 app.listen(EXPRESS_PORT, () => {

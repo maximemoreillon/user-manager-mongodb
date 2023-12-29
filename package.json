@@ -8,7 +8,8 @@
     "build": "tsc --outdir ./build -p . ",
     "start": "node ./build/index.js",
     "test": "mocha -r ts-node/register test/*.ts --timeout 10000 --exit",
-    "coverage": "nyc mocha -r ts-node/register test/*.ts --timeout 15000 --exit"
+    "coverage": "nyc mocha -r ts-node/register test/*.ts --timeout 15000 --exit",
+    "swagger-autogen": "ts-node swagger.ts"
   },
   "author": "Maxime MOREILLON",
   "license": "ISC",
@@ -28,6 +29,8 @@
     "nodemailer": "^6.7.5",
     "prom-client": "^15.0.0",
     "redis": "^4.6.10",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -40,6 +43,7 @@
     "@types/mocha": "^10.0.1",
     "@types/nodemailer": "^6.4.7",
     "@types/supertest": "^2.0.12",
+    "@types/swagger-ui-express": "^4.1.6",
     "@types/uuid": "^9.0.7",
     "chai": "^4.3.6",
     "mocha": "^8.3.2",
