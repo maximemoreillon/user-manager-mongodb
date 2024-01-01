@@ -1,5 +1,6 @@
 import dotenv from "dotenv"
 dotenv.config()
+
 import { version } from "./package.json"
 console.log(`User manager v${version}`)
 import express, { Request, Response, NextFunction } from "express"
