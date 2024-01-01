@@ -20,14 +20,15 @@ export const {
   MONGODB_PASSWORD,
   MONGODB_HOST = "mongo",
   MONGODB_PORT = "27017",
-  MONGODB_DB,
+  MONGODB_DB = "user_manager",
+  MONGODB_OPTIONS = "",
 } = process.env
 
 const mongodbConnectionString =
   MONGODB_CONNECTION_STRING ||
   (MONGODB_USERNAME && MONGODB_PASSWORD
-    ? `${MONGODB_PROTOCOL}://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}`
-    : `${MONGODB_PROTOCOL}://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}`)
+    ? `${MONGODB_PROTOCOL}://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}${MONGODB_OPTIONS}`
+    : `${MONGODB_PROTOCOL}://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}${MONGODB_OPTIONS}`)
 
 export const connect = () => {
   console.log("[Mongoose] Attempting initial connection...")
