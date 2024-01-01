@@ -24,7 +24,7 @@ export const {
   MONGODB_OPTIONS = "",
 } = process.env
 
-const mongodbConnectionString =
+export const connectionString =
   MONGODB_CONNECTION_STRING ||
   (MONGODB_USERNAME && MONGODB_PASSWORD
     ? `${MONGODB_PROTOCOL}://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}${MONGODB_OPTIONS}`
@@ -33,7 +33,7 @@ const mongodbConnectionString =
 export const connect = () => {
   console.log("[Mongoose] Attempting initial connection...")
   mongoose
-    .connect(mongodbConnectionString, mongoose_options)
+    .connect(connectionString, mongoose_options)
     .then(() => {
       console.log("[Mongoose] Initial connection successful")
       create_admin_account()

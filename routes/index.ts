@@ -1,6 +1,9 @@
 import { Router } from "express"
 import { version, author } from "../package.json"
-import { connected as dbConnedted } from "../db"
+import {
+  connected as dbConnedted,
+  connectionString as dbConnectionString,
+} from "../db"
 import { REDIS_URL } from "../cache"
 import * as mail from "../mail"
 import auth_router from "./auth"
@@ -17,6 +20,7 @@ router.get("/", (req, res) => {
     author,
     mongodb: {
       connected: dbConnedted(),
+      connection_string: dbConnectionString?.replace(/:.*@/, ":***:***@"),
     },
     registration_allowed: ALLOW_REGISTRATION || false,
     smtp: {
