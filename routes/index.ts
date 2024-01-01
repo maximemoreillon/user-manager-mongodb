@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { version, author } from "../package.json"
-import { MONGODB_URL, MONGODB_DB, connected as dbConnedted } from "../db"
+import { connected as dbConnedted } from "../db"
 import { REDIS_URL } from "../cache"
 import * as mail from "../mail"
 import auth_router from "./auth"
@@ -16,8 +16,6 @@ router.get("/", (req, res) => {
     version,
     author,
     mongodb: {
-      url: MONGODB_URL,
-      db: MONGODB_DB,
       connected: dbConnedted(),
     },
     registration_allowed: ALLOW_REGISTRATION || false,
