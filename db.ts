@@ -13,12 +13,25 @@ const mongoose_options = {
 
 mongoose.set("useCreateIndex", true)
 
-export const { MONGODB_URL = "mongodb://mongo/user_manager" } = process.env
+export const {
+  MONGODB_CONNECTION_STRING,
+  MONGODB_PROTOCOL = "mongodb",
+  MONGODB_USERNAME,
+  MONGODB_PASSWORD,
+  MONGODB_HOST = "mongo",
+  MONGODB_PORT = "27017",
+  MONGODB_DB,
+} = process.env
+
+const mongodbConnectionString =
+  MONGODB_CONNECTION_STRING || (MONGODB_USERNAME && MONGODB_PASSWORD)
+    ? `${MONGODB_PROTOCOL}://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}`
+    : `${MONGODB_PROTOCOL}://${MONGODB_HOST}:${MONGODB_PORT}/${MONGODB_DB}`
 
 export const connect = () => {
   console.log("[Mongoose] Attempting initial connection...")
   mongoose
-    .connect(MONGODB_URL, mongoose_options)
+    .connect(mongodbConnectionString, mongoose_options)
     .then(() => {
       console.log("[Mongoose] Initial connection successful")
       create_admin_account()
