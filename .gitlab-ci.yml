@@ -55,8 +55,7 @@ test:
       --rm
       --name tdd
       --network ${TEST_NETWORK}
-      -e MONGODB_URL=mongodb://${TEST_DB}
-      -e MONGODB_DB=user_manager_tdd
+      -e MONGODB_URL=mongodb://${TEST_DB}/user_manager_tdd
       -e JWT_SECRET=keyboardcat
       ${CONTAINER_IMAGE_TEST}
       npm run coverage
