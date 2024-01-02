@@ -20,7 +20,7 @@ router.get("/", (req, res) => {
     author,
     mongodb: {
       connected: dbConnedted(),
-      connection_string: dbConnectionString?.replace(/:.*@/, ":***:***@"),
+      connection_string: dbConnectionString?.replace(/:.*@/, "://***:***@"),
     },
     registration_allowed: ALLOW_REGISTRATION || false,
     smtp: {
