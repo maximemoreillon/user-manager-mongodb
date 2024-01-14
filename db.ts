@@ -26,14 +26,19 @@ export const {
 
 const mongodbPort = MONGODB_PORT ? `:${MONGODB_PORT}` : ""
 
-export const connectionString =
+const connectionString =
   MONGODB_CONNECTION_STRING ||
   (MONGODB_USERNAME && MONGODB_PASSWORD
     ? `${MONGODB_PROTOCOL}://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}${mongodbPort}/${MONGODB_DB}${MONGODB_OPTIONS}`
     : `${MONGODB_PROTOCOL}://${MONGODB_HOST}${mongodbPort}/${MONGODB_DB}${MONGODB_OPTIONS}`)
 
+export const redactedConnectionString = connectionString.replace(
+  /:.*@/,
+  "://***:***@"
+)
+
 export const connect = () => {
-  console.log("[Mongoose] Attempting initial connection...")
+  console.log(`[Mongoose] Connecting to ${redactedConnectionString}`)
   mongoose
     .connect(connectionString, mongoose_options)
     .then(() => {
