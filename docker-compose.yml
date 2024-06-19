@@ -5,8 +5,8 @@ services:
     image: mongo:4
     logging:
       driver: none
-    #volumes:
-    #  - mongo-data:/data/db
+    volumes:
+      - mongo-data:/data/db
     networks:
       - user-manager
 
@@ -39,8 +39,8 @@ services:
     networks:
       - user-manager
 
-#volumes:
-#  mongo-data:
+volumes:
+  mongo-data:
 
 networks:
   user-manager:
