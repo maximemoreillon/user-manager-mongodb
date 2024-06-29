@@ -13,7 +13,7 @@ services:
   user-manager-back:
     image: moreillon/user-manager-mongoose
     environment:
-      MONGODB_URL: mongodb://mongo
+      MONGODB_CONNECTION_STRING: mongodb://mongo/users
       JWT_SECRET: keyboard_cat
     networks:
       - user-manager
